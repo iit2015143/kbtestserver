@@ -8,19 +8,13 @@ var session = require('express-session');
 ObjectId = require('mongodb').ObjectID;
 var readConfig = require('./readConfig');
 var MongoClient = require('mongodb').MongoClient;
-var constants = require('./kbdelicates/constants.js');
 
-var adminOneNum=constants.adminOneNum;
-var adminTwoNum=constants.adminTwoNum;
+// Constants
+var constants = require('./kbdelicates/constants.js');
 var port = constants.port;
 var mongourl = constants.mongourl;
-var sender = constants.sender;
-var ordertimeout = constants.ordertimeout;
-var orderalert = constants.orderalert;
 
-var sess={};
 var config = readConfig();
-console.log(config);
 
 //all app uses
 
@@ -62,290 +56,17 @@ app.all("/user/*",function(req,res,next){
 
 app.use('/user',express.static('secured'));
 
-var sess;
-
-function extractinfofornotif(table,number,message){
-	MongoClient.connect(mongourl,function(err,db){
-		if(err)
-			throw err;
-		var dbo = db.db("khanabottesting");
-
-		//sendnotification("Conditional message","fromnumber")
-		console.log(table,number,message);
-		dbo.collection(table).findOne({"number":number},function(err,mres){
-				if(err)
-				throw err;
-				if(mres){
-					if(mres.notificationid){
-						sendnotification(message ,mres.notificationid);
-					}
-				}
-		});
-
-		db.close();
-	});
-}
-
-function writeorderstatus(id,status,fromnumber,tonumber){
-	MongoClient.connect(mongourl,function(err,db){
-		if(err)
-			throw err;
-		var dbo = db.db("khanabottesting");
-
-		dbo.collection("restaurants").update({"number":tonumber,"orders.id":id},{$set:
-		{"orders.$.status":status}},{upsert:false},
-			function(err,mres){
-				if(err)
-				throw err;
-
-
-
-
-				console.log("restaurant order updated");
-		});
-
-		dbo.collection("users").update({"number":fromnumber,"orders.id":id},{$set:
-		{"orders.$.status":status}},{upsert:false},
-			function(err,mres){
-				if(err)
-				throw err;
-				console.log("user order updated");
-		});
-
-		db.close();
-	});
-
-}
-
-function updatedatabasefordeclined(id,responder,fromnumber,tonumber){
-	MongoClient.connect(mongourl,function(err,db){
-		if(err)
-			throw err;
-		var dbo = db.db("khanabottesting");
-
-		dbo.collection("logdeclinedorder").insert({
-			"id":id,
-			"actor":responder,
-			"fromnumber":fromnumber,
-			"tonumber":tonumber
-		},
-			function(err,mres){
-				if(err)
-				throw err;
-				console.log("declined order logged");
-		});
-
-		db.close();
-	});
-
-}
-
-function checkandwrite(id,status,fromnumber,tonumber,res){
-	tonumber = parseInt(tonumber);
-	MongoClient.connect(mongourl,function(err,db){
-	  if(err)
-	  throw err;
-	  dbo = db.db("khanabottesting");
-
-		dbo.collection("restaurants")
-		    .findOne({"number": tonumber},
-		             {projection: { orders: { $elemMatch: { "id" : id} } } },
-		             function(errT, resultT) {
-			              //console.log(resultT);
-		        		if(resultT.orders[0].status == "Pending"){
-									res.send({status:"changed"});
-									writeorderstatus(id,status,fromnumber,tonumber);
-									extractinfofornotif("users",parseInt(fromnumber),"Your order has been "+status);
-								}
-								else{
-									res.send({status:"Already" +resultT.orders[0].status});
-								}
-		        	  db.close();
-		});
-
-	});
-}
-
-function checkacceptancetodecline(tonumber,id){
-	console.log("checking for inconsistency");
-	tonumber = parseInt(tonumber);
-	MongoClient.connect(mongourl,function(err,db){
-	  if(err)
-	  throw err;
-	  dbo = db.db("khanabottesting");
-
-		dbo.collection("restaurants")
-		    .findOne({"number": tonumber},
-		             {projection: { orders: { $elemMatch: { "id" : id} } } },
-		             function(errT, resultT) {
-			              //console.log(resultT);
-		        		if(resultT.orders[0].status == "Pending"){
-									writeorderstatus(resultT.orders[0].id,"Declined",
-										parseInt(resultT.orders[0].fromnumber),parseInt(resultT.orders[0].tonumber));
-
-									extractinfofornotif("users",parseInt(resultT.orders[0].fromnumber),
-										"Your order has been auto declined, sorry for inconvenience");
-
-									extractinfofornotif("restaurants",parseInt(resultT.orders[0].tonumber),
-										"The order has been declined as you did not respond.");
-								}
-		        	  db.close();
-		});
-
-	});
-}
-
-function checkacceptancetoalert(order){
-	console.log("checking for inconsistency");
-	tonumber = parseInt(order.tonumber);
-	console.log(order.tonumber+"this is my tonumber");
-	MongoClient.connect(mongourl,function(err,db){
-	  if(err)
-	  throw err;
-	  dbo = db.db("khanabottesting");
-
-		dbo.collection("restaurants")
-		    .findOne({"number": tonumber},
-		             {projection: { orders: { $elemMatch: { "id" : order.id} },msgnumber:1  } },
-		             function(errT, resultT) {
-			              //console.log(resultT);
-
-		        		if(resultT.orders[0].status == "Pending"){
-									if(resultT.msgnumber){
-										sendmessagetorestaurant(resultT.msgnumber,order.id,order.mode,order.summary,order.total,"");
-									}
-									else{
-										sendmessagetorestaurant(tonumber,order.id,order.mode,order.summary,order.total,"");
-									}
-									sendmessagetorestaurant(adminOneNum,order.id,order.mode,order.summary,order.total,order.tonumber);
-									sendmessagetorestaurant(adminTwoNum,order.id,order.mode,order.summary,order.total,order.tonumber);
-								}
-		        	  db.close();
-		});
-
-	});
-}
-
-function sendnotification(message,recipient){
-	console.log(recipient);
-	var message = new gcm.Message( {
-	    collapseKey: 'demo',
-	    priority: 'high',
-	    contentAvailable: true,
-	    delayWhileIdle: true,
-	    timeToLive: 3,
-	    data: {
-	        key1: 'message1',
-	        key2: 'message2'
-	    },
-	    notification: {
-	        title: "Khanabot",
-	        icon: "homeicon",
-	        sound:"margun",
-	        body: message
-	    }
-	});
-
-	message.delay_while_idle = 1;
-	var registrationIds = [];
-	registrationIds.push(recipient);
-  console.log("sending notification : ",message);
-	//sender.send(message, registrationIds,/* 4,*/ function (err, result) {
-	//console.log(result);
-	//});
-}
-
-function sendmessagetorestaurant(number,order,mode,summary,total,tonumber){
-	console.log("sending message to rest");
-	console.log(number + " " + order + " " + mode + " summary : "+summary);
-
-	// let url = "https://2factor.in/API/R1/"+
-	// number+"&from=khanab&templatename=order+place&var1="+order+"&var2="+mode+"&var3="+summary+"&var4="+total+"&var5="+tonumber;
-	// https.get(url,function(res){
-	//   let data = '';
-	//   res.on("data",(chunk)=>{
-	//     data+=chunk;
-	//   });
-	//   res.on("end",()=>{
-	//     console.log(data);
-	//   });
-	//   res.on("error",(error)=>{
-	//     console.log(error);
-	// 	});
-	// });
-}
-
-function getotp(number){
-	var otp = Math.floor(Math.random()*10)+""+ Math.floor(Math.random()*10)+""+Math.floor(Math.random()*10)+""+
-	Math.floor(Math.random()*10)+""+Math.floor(Math.random()*10);
-	if(parseInt(number)==7488663497)
-	otp = "11111";
-	else
-	https.get("https://2factor.in/API/V1/53a00358-7bf4-11e8-a895-0200cd936042/SMS/"+number+"/"+otp+"/khanabot",function(res){
-	  let data = '';
-	  res.on("data",(chunk)=>{
-	    data+=chunk;
-	  });
-	  res.on("end",()=>{
-	    console.log(data);
-	  });
-	  res.on("error",(error)=>{
-	    console.log(error);
-	  });
-	});
-
-	console.log(otp);
-	return otp;
-}
-
-function updateuuidrest(req,res,number,collection){
-	query={};
-	query.number = number;
-	MongoClient.connect(mongourl,function(err,db){
-			if(err)
-			throw err;
-
-			var dbo = db.db("khanabottesting");
-			dbo.collection(collection).findOne(query,function(err,mres){
-					if(err)
-					throw err;
-					if(mres==null){
-						updateuuid(req, res, number, collection);
-					}
-					else {
-						console.log("uuid found and sent, multiple loggdin tracked\n" + mres.uuid);
-						sess.number = number;
-						sess.uuid = mres.uuid;
-						sess.loggedin = true;
-						res.send({uuid:mres.uuid});
-					}
-			});
-			db.close();
-	});
-}
-
-function updateuuid(req,res,number,collection){
-	sess = req.session;
-	//uuid = Math.floor(Math.random()*999999999999 + 1000000000000);
-	uuid = require('crypto').randomBytes(128).toString('hex');
-	query={};
-	query.number = number;
-	MongoClient.connect(mongourl,function(err,db){
-			if(err)
-			throw err;
-
-			var dbo = db.db("khanabottesting");
-			dbo.collection(collection).update(query,{$set:{uuid:uuid}},{upsert:true},function(err,mres){
-					if(err)
-					throw err;
-					console.log("uuidupdated");
-					sess.number = number;
-					sess.uuid = uuid;
-					sess.loggedin = true;
-					res.send({uuid:uuid});
-			});
-	});
-}
+// Function modules
+var checkandwrite = require('./functions/checkAndWrite');
+var extractinfofornotif = require('./functions/extractInfoForNotif');
+var getotp = require('./functions/getOTP');
+var processrequest = require('./functions/processRequest');
+var processrequestnew = require('./functions/processRequestNew');
+var sendnotification = require('./functions/sendNotification');
+var updatedatabasefordeclined = require('./functions/updateDatabaseForDeclined');
+var updateuuid = require('./functions/updateUUID');
+var updateuuidrest = require('./functions/updateUUIDRest');
+var writeorderstatus = require('./functions/writeOrderStatus');
 
 app.post('/weblogintrial',function(req,res){
 	sess = req.session;
@@ -433,7 +154,7 @@ app.post('/number',function(req,res){
 		sess = req.session;
 		insertme.number = parseInt(req.body.number);
 		checkme.number = insertme.number;
-		insertme.otp = getotp(insertme.number);
+		insertme.otp = getotp(insertme.number);               /* ----------------getotp ----------------------- */
 		date = new Date();
 		insertme.date = date.getTime();
 		console.log(insertme);
@@ -477,7 +198,7 @@ app.post('/otp',function(req,res){
 						res.send({otp:"invalid"});
 						else{
 							if(date - mres.date <=180000){
-									updateuuid(req,res,checkme.number,"users");
+									sess = updateuuid(req,res,checkme.number,"users");             /* ---------------------- updateuuid --------------------- */
 							}
 							else {
 								res.send({otp:"timeout"});
@@ -512,7 +233,7 @@ app.post('/otprest',function(req,res){
 						res.send({otp:"invalid"});
 						else{
 							if(date - mres.date <=180000){
-									updateuuidrest(req,res,checkme.number,"restaurants");
+									sess = updateuuidrest(req,res,checkme.number,"restaurants");  /* ----------------------------- updateuuidrest ----------------------------------*/
 							}
 							else {
 								res.send({otp:"timeout"});
@@ -923,7 +644,7 @@ app.post('/requestorder',function(req,res){
 				}
 			}
 			//console.log(temporder);
-			processrequest(mode,temporder,time,gLocation);
+			processrequest(mode,temporder,time,gLocation,sess.number); /* ------------------------------------- processrequest --------------------------- */
 
 		}
 		res.send({"orders":"requested"});
@@ -944,7 +665,7 @@ app.post('/requestordernew',function(req,res){
 
 		order = JSON.parse(order);
 		console.log(order.ordermode,order.time);
-		processrequestnew(order);
+		processrequestnew(order,sess.number);  /* ---------------------------------- processrequest --------------------------------------------- */
 		res.send({"orders":"requested"});
 
 	}
@@ -952,153 +673,6 @@ app.post('/requestordernew',function(req,res){
 		res.send({loggedin:false});
 	}
 });
-
-function processrequest(mode,order,time,gLocation){
-	MongoClient.connect(mongourl,function(err,db){
-		if(err)
-			throw err;
-		var dbo = db.db("khanabottesting");
-		var orders = {};
-		orders.mode = mode;
-		orders.time = time;
-		orders.order = order;
-		orders.status ="Pending";
-		orders.fromnumber = parseInt(sess.number);
-		orders.tonumber = parseInt(order[0].number);
-		orders.gLocation = gLocation;
-		var date = new Date();
-		orders.id = date.getTime()+""+(1000 + Math.floor(8999 * Math.random()));
-		//console.log(orders);
-		var total = 0;
-		var summary = "";
-		for(var i =0; i<order.length;i++){
-			var price = order[i].price[parseInt(order[i].index)] * parseInt(order[i].quantity)
-			total+=price;
-			summary += order[i].name +" x " + order[i].quantity +" = "+price+", ";
-		}
-		if(mode=="book")
-		summary = summary + "\nBook" +" in time : " + time + "mins";
-		else {
-			summary = summary + "\nCOD" +" in time : " + "__"+ "mins";
-		}
-		console.log(summary);
-		console.log(total);
-		orders.summary = summary;
-		orders.total = total;
-
-		dbo.collection("restaurants").update({"number":parseInt(orders.tonumber)},{
-				$push : {
-					"orders":orders
-				}
-			},{
-				upsert:false
-			},
-			function(err,mres){
-				if(err)
-				throw err;
-				console.log("updated in restaurants");
-		});
-
-
-		//If want to save location of user
-		dbo.collection("users").update({"number":parseInt(sess.number)},{
-			$push : {
-				"orders":orders
-			}
-		},{
-			upsert:false
-		},
-		function(err,mres){
-			if(err)
-			throw err;
-			console.log("updated in users");
-		});
-
-		extractinfofornotif("restaurants",parseInt(orders.tonumber),"There is a new order kindly see the order");
-
-		console.log("timer started");
-
-		setTimeout(function(){
-			checkacceptancetoalert(orders);
-		},orderalert);
-
-		setTimeout(function(){
-			checkacceptancetodecline(orders.tonumber,orders.id);
-		},ordertimeout);
-
-		db.close();
-	});
-}
-
-function processrequestnew(order){
-	MongoClient.connect(mongourl,function(err,db){
-		if(err)
-			throw err;
-		var dbo = db.db("khanabottesting");
-		order.fromnumber = parseInt(sess.number);
-		var date = new Date();
-		order.id = date.getTime()+""+(1000 + Math.floor(8999 * Math.random()));
-		//console.log(orders);
-
-		var summary = "";
-		for(var i =0; i<order.order.length;i++){
-			// var price = order[i].price[parseInt(order[i].index)] * parseInt(order[i].quantity)
-			// total+=price;
-			summary += order.order[i].name +" x " + order.order[i].quantity +" = "+order.order[i].price+", ";
-		}
-		if(order.mode=="book")
-		summary = summary + "\nBook" +" in time : " + order.time;
-		else {
-			summary = summary + "\nCOD" +" in time : " + order.time;
-		}
-		console.log(summary);
-		console.log(order.total);
-		order.summary = summary;
-
-		dbo.collection("restaurants").update({"number":parseInt(order.tonumber)},{
-				$push : {
-					"orders":order
-				}
-			},{
-				upsert:false
-			},
-			function(err,mres){
-				if(err)
-				throw err;
-				console.log("updated in restaurants");
-		});
-
-
-		//If want to save location of user
-		dbo.collection("users").update({"number":parseInt(sess.number)},{
-			$push : {
-				"orders":order
-			}
-		},{
-			upsert:false
-		},
-		function(err,mres){
-			if(err)
-			throw err;
-			console.log("updated in users");
-		});
-
-		extractinfofornotif("restaurants",parseInt(order.tonumber),"There is a new order kindly see the order");
-
-		console.log("timer started");
-
-		setTimeout(function(){
-			checkacceptancetoalert(order);
-		},orderalert);
-
-		setTimeout(function(){
-			checkacceptancetodecline(order.tonumber,order.id);
-		},ordertimeout);
-
-		db.close();
-	});
-}
-
 
 app.get('/changeorderstatuspradeep',function(req,res){
 	sess = req.session;
@@ -1138,7 +712,7 @@ app.get('/changeorderstatuspradeep',function(req,res){
 					throw err;
 					if(mres){
 						if(mres.notificationid){
-							sendnotification("Your order has been "+status,mres.notificationid);
+							sendnotification("Your order has been "+status,mres.notificationid);  /* ------------------------------ sendnotification  -------------------------- */
 						}
 					}
 			});
@@ -1170,7 +744,7 @@ app.get('/changeorderstatusrest',function(req,res){
 			if(status=="Declined"){
 				updatedatabasefordeclined(id,"restaurant",fromnumber,tonumber);
 			}
-			extractinfofornotif("users",parseInt(fromnumber),"Your order has been "+status);
+			extractinfofornotif("users",parseInt(fromnumber),"Your order has been "+status);  /* ------------------- extractinfofornotif,writeorderstatus,updatedatabasefordeclined,checkandwrite ---------------------*/
 			res.send({status:"changed"});
 		}
 
@@ -1205,7 +779,7 @@ app.get('/changeorderstatuscustomer',function(req,res){
 										writeorderstatus(id,status,fromnumber,tonumber);
 										updatedatabasefordeclined(id,"customer",fromnumber,tonumber);
 										res.send({"status":"changed"});
-										extractinfofornotif("restaurants",parseInt(resultT.orders[0].tonumber),
+										extractinfofornotif("restaurants",parseInt(resultT.orders[0].tonumber), /* ------------------- extractinfofornotif,writeorderstatus,updatedatabasefordeclined ---------------------*/
 											"The order " + id + " has been declined by the customer.");
 									}
 									else{
