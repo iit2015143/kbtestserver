@@ -33,6 +33,7 @@ var setmsgnumber = require('./restaurants/setmsgnumber.js');
 var setcallnumber = require('./restaurants/setcallnumber.js');
 var currenttime = require('./restaurants/currenttime.js');
 var addtocart = require('./restaurants/addtocart.js');
+var profilepage = require('./restaurants/profilepage.js');
 
 //all app uses
 
@@ -747,28 +748,8 @@ app.get('/savelocation',function(req,res){
 // Send the whole restaurant document related to a particular number.
 app.get('/restaurantpage', restaurantpage);
 
-app.get('/profilepage',function(req,res){
-	sess = req.session;
-
-	if(sess && sess.loggedin){
-		var number = parseInt(req.query.number);
-
-		MongoClient.connect(mongourl,function(err,db){
-			if(err)
-				throw err;
-			var dbo = db.db("khanabottesting");
-
-			dbo.collection("users").find({
-				"number":number}).toArray(function(err,mres){
-				res.send(mres);
-				console.log(number);
-      });
-		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
-});
+// Send the whole user document related to a particular number.
+app.get('/profilepage', profilepage);
 
 // Save user cart to user document for now not in use.
 app.get('/addtocart', addtocart);
