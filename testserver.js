@@ -558,43 +558,9 @@ app.get('/savenotificationid',function(req, res){
 			},
 			function(err,mres){
 				if(err)
-				throw err;
+				throw e rr;
 				console.log("notificationid updated");
 				res.send({"notificationid":"updated"});
-			});
-
-			db.close();
-		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
-
-});
-
-app.get('/savenotificationidpradeep',function(req, res){
-	sess=req.session;
-	sess.loggedin=true;
-	if(sess && sess.loggedin==true){
-		var notificationid = req.query.notificationid;
-		var number = parseInt(req.query.number);
-		MongoClient.connect(mongourl,function(err,db){
-			if(err)
-				throw err;
-			var dbo = db.db("khanabottesting");
-			//If want to save location of user
-			dbo.collection("restaurants").update({"number":number},{
-				$set : {
-					"notificationid":notificationid
-				}
-			},{
-				upsert:false
-			},
-			function(err,mres){
-				if(err)
-				throw err;
-				console.log("notificationid of pradeep updated");
-				res.send({"notificationidpradeep":"updated"});
 			});
 
 			db.close();
