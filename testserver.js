@@ -35,6 +35,7 @@ var currenttime = require('./restaurants/currenttime.js');
 var addtocart = require('./restaurants/addtocart.js');
 var profilepage = require('./restaurants/profilepage.js');
 var savelocation = require('./restaurants/savelocation.js');
+var savenotificationidrest = require('./restaurants/savenotificationidrest.js');
 
 //all app uses
 
@@ -586,38 +587,8 @@ app.get('/savenotificationid',function(req, res){
 
 });
 
-app.get('/savenotificationidrest',function(req, res){
-	sess=req.session;
-	if(sess && sess.loggedin==true){
-		var notificationid = req.query.notificationid;
-		var number = parseInt(sess.number);
-		MongoClient.connect(mongourl,function(err,db){
-			if(err)
-				throw err;
-			var dbo = db.db("khanabottesting");
-			//If want to save location of user
-			dbo.collection("restaurants").update({"number":number},{
-				$set : {
-					"notificationid":notificationid
-				}
-			},{
-				upsert:false
-			},
-			function(err,mres){
-				if(err)
-				throw err;
-				console.log("notificationid of restaurant updated");
-				res.send({"notificationid":"updated"});
-			});
-
-			db.close();
-		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
-
-});
+// Save notification id of a user
+app.get('/savenotificationidrest', savenotificationidrest);
 
 app.post('/sharelocation',function(req,res){
 	sess = req.session;
