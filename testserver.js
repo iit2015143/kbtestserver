@@ -60,7 +60,6 @@ app.use('/user',express.static('secured'));
 var checkandwrite = require('./functions/checkAndWrite');
 var extractinfofornotif = require('./functions/extractInfoForNotif');
 var getotp = require('./functions/getOTP');
-var processrequest = require('./functions/processRequest');
 var processrequestnew = require('./functions/processRequestNew');
 var sendnotification = require('./functions/sendNotification');
 var updatedatabasefordeclined = require('./functions/updateDatabaseForDeclined');
@@ -68,85 +67,25 @@ var updateuuid = require('./functions/updateUUID');
 var updateuuidrest = require('./functions/updateUUIDRest');
 var writeorderstatus = require('./functions/writeOrderStatus');
 
-app.post('/weblogintrial',function(req,res){
-	sess = req.session;
-	sess.number = 7488663497;
-	sess.loggedin = true;
-	res.send({loggedin:true});
-});
-
-app.post('/login',function(req,res){
-	var query = {};
-	console.log(req.body);
-	query.number = parseInt(req.body.number);
-	sess = req.session;
-	query.uuid = req.body.uuid;
-	MongoClient.connect(mongourl,function(err,db){
-		if(err)
-		throw err;
-		dbo = db.db("khanabottesting");
-
-		dbo.collection("users").findOne(query,function(err,mres){
-			if(err)
-			throw err;
-			if(mres==null){
-				res.send({loggedin:false});
-			}
-			else{
-				//console.log(mres);
-				sess.number = query.number;
-				sess.uuid = query.uuid;
-				sess.loggedin = true;
-				res.send({loggedin:true});
-			}
-			db.close();
-		});
-	});
-});
-
-app.post('/loginrest',function(req,res){
-	var query = {};
-	query.number = parseInt(req.body.number);
-	sess = req.session;
-	query.uuid = req.body.uuid;
-	MongoClient.connect(mongourl,function(err,db){
-		if(err)
-		throw err;
-		dbo = db.db("khanabottesting");
-
-		dbo.collection("restaurants").findOne(query,function(err,mres){
-			if(err)
-			throw err;
-			if(mres==null){
-				res.send({loggedin:false});
-			}
-			else{
-				sess.number = query.number;
-				sess.uuid = query.uuid;
-				sess.loggedin = true;
-				res.send({loggedin:true});
-			}
-			db.close();
-		});
-	});
-});
-
-app.get('/appversion',function(req,res){
-	res.send({version:"2.1.0"});
-});
-
-app.get('/appversionrest',function(req,res){
-        res.send({version:"1.0.0"});
-});
-
-app.get('/checkstatus',function(req,res){
-		sess = req.session;
-		if(sess && sess.loggedin){
-			res.send({loggedin:true});
-		}
-		else
-		res.send({loggedin:false});
-});
+//Routes
+const webLoginTrailRoutes = require('./routes/webLoginTrailRoutes');
+app.use('/weblogintrail',webLoginTrailRoutes);
+const loginRoutes = require('./routes/loginRoutes');
+app.use('/login',loginRoutes);
+const loginRestRoutes = require('./routes/loginRestRoutes');
+app.use('/loginrest',loginRestRoutes);
+const appVersionRoutes = require('./routes/appVersionRoutes');
+app.use('/appversion',appVersionRoutes);
+const appVersionRestRoutes = require('./routes/appVersionRestRoutes');
+app.use('/appversionrest',appVersionRestRoutes);
+const changeOrderStatusRestRoutes = require('./routes/changeOrderStatusRestRoutes');
+app.use('/changeorderstatusrest',changeOrderStatusRestRoutes);
+const checkStatusRoutes = require('./routes/checkStatusRoutes');
+app.use('/checkstatus',checkStatusRoutes);
+const requestOrderNewRoutes = require('./routes/requestOrderNewRoutes');
+app.use('/requestordernew',requestOrderNewRoutes);
+const shareLocationRoutes = require('./routes/shareLocationRoutes');
+app.use('/shareLocation',shareLocationRoutes);
 
 app.post('/number',function(req,res){
 		insertme = {};
@@ -360,61 +299,6 @@ app.get('/savenotificationidrest',function(req, res){
 
 });
 
-app.post('/sharelocation',function(req,res){
-	sess = req.session;
-
-	if(sess && sess.loggedin){
-		var lat = parseFloat(req.body.lat);
-		var long = parseFloat(req.body.long);
-		if(req.body.gLocation){
-			gLocation = req.body.gLocation;
-			sess.gLocation=gLocation;}
-		else {
-			gLocation="";
-		}
-		sess.lat = lat;
-		sess.long = long;
-		var Location={};
-		Location.lat=lat;
-		Location.long=long;
-		Location.gLocation=gLocation;
-
-		MongoClient.connect(mongourl,function(err,db){
-			if(err)
-				throw err;
-			var dbo = db.db("khanabottesting");
-
-			dbo.collection("restaurants").find({
-				"Location.lat":{$gt:lat-config.dlatitude,$lt:lat+config.dlatitude},
-				"Location.long":{$gt:long-config.dlongitude,$lt:long+config.dlongitude},"status":"on","admin":"on"}).
-				project({orders:0, _id:0,notificationid:0,uuid:0}).sort({rating:-1}).toArray(function(err,mres){
-					res.send(mres);
-					//console.log(mres);
-					console.log(lat,long);
-      	});
-
-			//If want to save location of user
-			dbo.collection("users").update({"number":parseInt(sess.number)},{
-				$set : {
-					"Location":Location
-				}
-			},{
-				upsert:false
-			},
-			function(err,mres){
-				if(err)
-				throw err;
-				console.log("updated location");
-			});
-
-			db.close();
-		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
-});
-
 app.post('/getmerest',function(req,res){
 	sess = req.session;
 	if(sess && sess.loggedin){
@@ -613,141 +497,6 @@ app.get('/addtocart',function(req,res){
 						db.close();
 				});
 		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
-});
-
-app.post('/requestorder',function(req,res){
-	sess = req.session;
-	console.log("something came");
-	if(sess && sess.loggedin){
-		console.log("something came in");
-		var mode = req.body.mode;
-		var time = req.body.time;
-		var order = req.body.order;
-		var gLocation = sess.gLocation;
-		//console.log(order);
-
-		order = JSON.parse(order);
-		console.log(mode,time);
-
-		while(order.length > 0){
-			temporder=[];
-			tempnumber = order[0].number;
-			for(var j=0; j<order.length;j++){
-				if(order[j].number == tempnumber){
-					temporder.push(order[j]);
-					order.splice(j,1);
-					j--;
-				}
-			}
-			//console.log(temporder);
-			processrequest(mode,temporder,time,gLocation,sess.number); /* ------------------------------------- processrequest --------------------------- */
-
-		}
-		res.send({"orders":"requested"});
-
-	}
-	else{
-		res.send({loggedin:false});
-	}
-});
-
-app.post('/requestordernew',function(req,res){
-	sess = req.session;
-	console.log("something came");
-	if(sess && sess.loggedin){
-		console.log("something came in");
-		var order = req.body.order;
-		//console.log(order);
-
-		order = JSON.parse(order);
-		console.log(order.ordermode,order.time);
-		processrequestnew(order,sess.number);  /* ---------------------------------- processrequest --------------------------------------------- */
-		res.send({"orders":"requested"});
-
-	}
-	else{
-		res.send({loggedin:false});
-	}
-});
-
-app.get('/changeorderstatuspradeep',function(req,res){
-	sess = req.session;
-	sess.loggedin = true;
-	if(sess && sess.loggedin){
-		var id = req.query.id;
-		var status = req.query.status;
-		var fromnumber = parseInt(req.query.fromnumber);
-		var tonumber = parseInt(req.query.tonumber);
-
-		res.send({status:"changed"});
-
-		MongoClient.connect(mongourl,function(err,db){
-			if(err)
-				throw err;
-			var dbo = db.db("khanabottesting");
-			dbo.collection("users").update({"number":fromnumber,"orders.id":id},{$set:
-			{"orders.$.status":status}},{upsert:false},
-				function(err,mres){
-					if(err)
-					throw err;
-					console.log("user order updated");
-			});
-
-			dbo.collection("restaurants").update({"number":tonumber,"orders.id":id},{$set:
-			{"orders.$.status":status}},{upsert:false},
-				function(err,mres){
-					if(err)
-					throw err;
-					console.log("restaurant order updated");
-			});
-
-			//sendnotification("Conditional message","fromnumber")
-
-			dbo.collection("users").findOne({"number":fromnumber},function(err,mres){
-					if(err)
-					throw err;
-					if(mres){
-						if(mres.notificationid){
-							sendnotification("Your order has been "+status,mres.notificationid);  /* ------------------------------ sendnotification  -------------------------- */
-						}
-					}
-			});
-
-			db.close();
-		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
-});
-
-app.get('/changeorderstatusrest',function(req,res){
-	sess = req.session;
-	if(sess && sess.loggedin){
-		var id = req.query.id;
-		var status = req.query.status;
-		var fromnumber = parseInt(req.query.fromnumber);
-		var tonumber = parseInt(sess.number);
-
-
-
-		if(status=="Accepted"){
-			//only restaurant can call this function users dont have permission
-			checkandwrite(id,status,fromnumber,tonumber,res);
-		}
-		else{
-			writeorderstatus(id,status,fromnumber,tonumber);
-			if(status=="Declined"){
-				updatedatabasefordeclined(id,"restaurant",fromnumber,tonumber);
-			}
-			extractinfofornotif("users",parseInt(fromnumber),"Your order has been "+status);  /* ------------------- extractinfofornotif,writeorderstatus,updatedatabasefordeclined,checkandwrite ---------------------*/
-			res.send({status:"changed"});
-		}
-
 	}
 	else{
 		res.send({loggedin:false});
