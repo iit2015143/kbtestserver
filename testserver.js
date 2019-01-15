@@ -30,6 +30,7 @@ var restaurantpage = require('./restaurants/restaurantpage.js');
 var getstatus = require('./restaurants/getstatus.js');
 var setstatus =require('./restaurants/setstatus.js');
 var setmsgnumber = require('./restaurants/setmsgnumber.js');
+var setcallnumber = require('./restaurants/setcallnumber.js');
 
 //all app uses
 
@@ -1241,29 +1242,8 @@ app.get('/setstatus', setstatus);
 // Set message number to restaurant document.
 app.get('/setmsgnumber', setmsgnumber);
 
-app.get('/setcallnumber',function(req,res){
-	sess = req.session;
-	if(sess && sess.loggedin){
-		var number = parseInt(sess.number);
-		var callnumber = parseInt(req.query.callnumber);
-		MongoClient.connect(mongourl,function(err,db){
-			if(err)
-			throw err;
-			var dbo = db.db("khanabottesting");
-			dbo.collection("restaurants").update({"number":number},{$set:{callnumber:callnumber}},
-			function(err,mres){
-				if(err)
-				throw err;
-				res.send({status:"changed"});
-			});
-
-			db.close();
-		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
-});
+// Set call number to restaurant document.
+app.get('/setcallnumber', setcallnumber);
 
 app.get('/currenttime',function(req,res){
 	let date = new Date();
