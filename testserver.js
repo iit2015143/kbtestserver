@@ -22,6 +22,9 @@ var sess={};
 var config = readConfig();
 console.log(config);
 
+// all restaurant related functions
+var getoffers = require('./restaurants/getoffers.js')
+
 //all app uses
 
 app.use(session({
@@ -1407,17 +1410,8 @@ app.get('/currenttime',function(req,res){
 	res.send({currenttime:date});
 });
 
-app.get('/getoffers',function(req,res){
-	var number = parseInt(req.query.number);
-	if(true || number == "9956837774"){
-		var offers = [{name:"OFF15",minValue:150,maxDiscount:-1,mode:["book"]},
-		{name:"OFF10",minValue:100,maxDiscount:-1}];
-		res.send(offers);
-	}
-	else{
-		res.send([]);
-	}
-});
+// Sends offers if any, for now function is hardcoded.
+app.get('/getoffers', getoffers);
 
 var server = app.listen(port,function(req,res){
   console.log("server started on "+ port);
