@@ -25,8 +25,9 @@ console.log(config);
 // all restaurant related functions
 var getoffers = require('./restaurants/getoffers.js');
 var adminlistallrest = require('./restaurants/adminlistallrest.js');
-var locationrest = require('./require/locationrest.js');
-var restaurantpage = require('./require/restaurantpage.js');
+var locationrest = require('./restaurants/locationrest.js');
+var restaurantpage = require('./restaurants/restaurantpage.js');
+var getstatus = require('./restaurants/getstatus.js');
 
 //all app uses
 
@@ -1229,33 +1230,8 @@ app.get('/orderhistoryrest',function(req,res){
 	}
 });
 
-app.get('/getstatus',function(req,res){
-	sess = req.session;
-	if(sess && sess.loggedin){
-		var number = parseInt(sess.number);
-		MongoClient.connect(mongourl,function(err,db){
-			if(err)
-			throw err;
-			var dbo = db.db("khanabottesting");
-			dbo.collection("restaurants").findOne({"number":number},
-			function(err,mres){
-				if(err)
-				throw err;
-				if(mres.status){
-					let status = mres.status;
-					res.send({status:status});
-				}
-				else
-					res.send({status:"off"});
-			});
-
-			db.close();
-		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
-});
+// Send status of a restaurant to it, if it is open or closed.
+app.get('/getstatus', getstatus);
 
 app.get('/setstatus',function(req,res){
 	sess = req.session;
