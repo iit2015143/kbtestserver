@@ -31,11 +31,12 @@ var getstatus = require('./restaurants/getstatus.js');
 var setstatus =require('./restaurants/setstatus.js');
 var setmsgnumber = require('./restaurants/setmsgnumber.js');
 var setcallnumber = require('./restaurants/setcallnumber.js');
-var currenttime = require('./restaurants/currenttime.js');
-var addtocart = require('./restaurants/addtocart.js');
-var profilepage = require('./restaurants/profilepage.js');
-var savelocation = require('./restaurants/savelocation.js');
-var savenotificationidrest = require('./restaurants/savenotificationidrest.js');
+var currenttime = require('./users/currenttime.js');
+var addtocart = require('./users/addtocart.js');
+var profilepage = require('./users/profilepage.js');
+var savelocation = require('./users/savelocation.js');
+var savenotificationidrest = require('./users/savenotificationidrest.js');
+var getmerest = require('./adminonly/getmerest.js');
 
 //all app uses
 
@@ -645,14 +646,8 @@ app.post('/sharelocation',function(req,res){
 	}
 });
 
-app.post('/getmerest',function(req,res){
-	sess = req.session;
-	if(sess && sess.loggedin){
-		var number = parseInt(req.body.number);
-		sess.number = number;
-		res.send({status:"done"});
-	}
-});
+// Give admin all the rights that a restaurant admin has by just setting session as a restaurant session.
+app.post('/getmerest', getmerest);
 
 // Lists all restaurants to admin
 app.get('/adminlistallrest', adminlistallrest);
