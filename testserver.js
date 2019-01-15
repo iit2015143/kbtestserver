@@ -24,7 +24,8 @@ console.log(config);
 
 // all restaurant related functions
 var getoffers = require('./restaurants/getoffers.js');
-var adminlistallrest = require('./restaurants/adminlistallrest.js')
+var adminlistallrest = require('./restaurants/adminlistallrest.js');
+var locationrest = require('./require/locationrest.js')
 
 //all app uses
 
@@ -676,43 +677,8 @@ app.post('/getmerest',function(req,res){
 // Lists all restaurants to admin
 app.get('/adminlistallrest', adminlistallrest);
 
-app.post('/locationrest',function(req,res){
-	sess = req.session;
-
-	if(sess && sess.loggedin){
-
-		var location = req.body.location;
-		location = JSON.parse(location);
-		location.lat= parseFloat(location.lat);
-		location.long=parseFloat(location.long);
-
-		MongoClient.connect(mongourl,function(err,db){
-			if(err)
-				throw err;
-			var dbo = db.db("khanabottesting");
-
-			//If want to save location of user
-			dbo.collection("restaurants").update({"number":parseInt(sess.number)},{
-				$set : {
-					"Location":location
-				}
-			},{
-				upsert:false
-			},
-			function(err,mres){
-				if(err)
-				throw err;
-				res.send({location:"updated"});
-				console.log("updated location in restaurant");
-			});
-
-			db.close();
-		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
-});
+// Saves the location of restaurant in database
+app.post('/locationrest',locationrest);
 
 app.get('/savelocation',function(req,res){
 	sess = req.session;
