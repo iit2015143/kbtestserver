@@ -25,7 +25,8 @@ console.log(config);
 // all restaurant related functions
 var getoffers = require('./restaurants/getoffers.js');
 var adminlistallrest = require('./restaurants/adminlistallrest.js');
-var locationrest = require('./require/locationrest.js')
+var locationrest = require('./require/locationrest.js');
+var restaurantpage = require('./require/restaurantpage.js');
 
 //all app uses
 
@@ -737,27 +738,8 @@ app.get('/savelocation',function(req,res){
 	}
 });
 
-app.get('/restaurantpage',function(req,res){
-	sess = req.session;
-	if(sess && sess.loggedin){
-		var number = parseFloat(req.query.number);
-
-		MongoClient.connect(mongourl,function(err,db){
-			if(err)
-				throw err;
-			var dbo = db.db("khanabottesting");
-
-			dbo.collection("restaurants").find({
-				"number":number}).toArray(function(err,mres){
-				res.send(mres);
-				console.log(number);
-      });
-		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
-});
+// Send the whole restaurant document related to a particular number.
+app.get('/restaurantpage', restaurantpage);
 
 app.get('/profilepage',function(req,res){
 	sess = req.session;
