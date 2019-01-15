@@ -31,6 +31,7 @@ var getstatus = require('./restaurants/getstatus.js');
 var setstatus =require('./restaurants/setstatus.js');
 var setmsgnumber = require('./restaurants/setmsgnumber.js');
 var setcallnumber = require('./restaurants/setcallnumber.js');
+var currenttime = require('./restaurants/currenttime.js')
 
 //all app uses
 
@@ -1245,11 +1246,8 @@ app.get('/setmsgnumber', setmsgnumber);
 // Set call number to restaurant document.
 app.get('/setcallnumber', setcallnumber);
 
-app.get('/currenttime',function(req,res){
-	let date = new Date();
-	date = date.getHours();
-	res.send({currenttime:date});
-});
+// Send current time to everyone who makes request.
+app.get('/currenttime', currenttime);
 
 // Sends offers if any, for now function is hardcoded.
 app.get('/getoffers', getoffers);
