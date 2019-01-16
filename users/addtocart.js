@@ -6,7 +6,7 @@ var mongourl = constants.mongourl;
 
 function addtocart (req,res){
 	sess = req.session;
-
+	
 	if(sess && sess.loggedin){
 		var number = parseInt(req.query.number);
 		var cart = req.query.cart;
@@ -28,9 +28,9 @@ function addtocart (req,res){
 				});
 		});
 	}
-	else{
+	else {
 		res.send({loggedin:false});
-	}
-}
+	};
+};
 
 module.exports = addtocart;
