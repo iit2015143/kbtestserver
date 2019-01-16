@@ -20,7 +20,7 @@ function adminlistallrest (req,res){
 
 			db.close();
 		});
-	};
+	}
 	else{
 		res.send({loggedin:false});
 	};

@@ -1,7 +1,7 @@
 // Send the whole user document related to a particular number.
 
 var MongoClient = require('mongodb').MongoClient;
-var constants = require('./kbdelicates/constants.js');
+var constants = require('../kbdelicates/constants.js');
 var mongourl = constants.mongourl;
 
 function profilepage (req,res){

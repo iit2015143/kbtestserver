@@ -1,7 +1,7 @@
 // Send status of a restaurant to its document, if it is open or closed.
 
 var MongoClient = require('mongodb').MongoClient;
-var constants = require('./kbdelicates/constants.js');
+var constants = require('../kbdelicates/constants.js');
 var mongourl = constants.mongourl;
 
 function setstatus (req,res){

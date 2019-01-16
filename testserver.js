@@ -574,7 +574,7 @@ app.get('/savenotificationid',function(req, res){
 			},
 			function(err,mres){
 				if(err)
-				throw e rr;
+				throw err;
 				console.log("notificationid updated");
 				res.send({"notificationid":"updated"});
 			});
