@@ -31,12 +31,17 @@ var getstatus = require('./restaurants/getstatus.js');
 var setstatus =require('./restaurants/setstatus.js');
 var setmsgnumber = require('./restaurants/setmsgnumber.js');
 var setcallnumber = require('./restaurants/setcallnumber.js');
-var currenttime = require('./users/currenttime.js');
+
+// all user related functions
 var addtocart = require('./users/addtocart.js');
+var currenttime = require('./users/currenttime.js');
 var profilepage = require('./users/profilepage.js');
 var savelocation = require('./users/savelocation.js');
 var savenotificationidrest = require('./users/savenotificationidrest.js');
+
+// all admin only functions
 var getmerest = require('./adminonly/getmerest.js');
+
 
 //all app uses
 
