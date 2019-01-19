@@ -62,3 +62,6 @@ typings/
 
 # testing files
 *trash/
+
+#constants
+*constants.js
