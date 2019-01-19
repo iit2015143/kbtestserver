@@ -32,6 +32,7 @@ var setstatus =require('./restaurants/setstatus.js');
 var setmsgnumber = require('./restaurants/setmsgnumber.js');
 var setcallnumber = require('./restaurants/setcallnumber.js');
 var getmsgnumber = require('./restaurants/getmsgnumber.js');
+var getcallnumber = require('./restaurants/getcallnumber.js');
 
 // all user related functions
 var addtocart = require('./users/addtocart.js');
@@ -1129,6 +1130,9 @@ app.get('/getoffers', getoffers);
 
 // Get message number from restaurant document.
 app.get('/getmsgnumber', getmsgnumber);
+
+// Get call number from restaurant document.
+app.get('/getcallnumber', getcallnumber);
 
 var server = app.listen(port,function(req,res){
   console.log("server started on "+ port);
