@@ -64,4 +64,4 @@ typings/
 *trash/
 
 #constants
-*constants.js
+*keys.js
