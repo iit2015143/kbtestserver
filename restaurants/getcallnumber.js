@@ -6,8 +6,7 @@ var mongourl = constants.mongourl;
 
 function getcallnumber (req,res){
 	sess = req.session;
-	sess.number = 7488663497;
-	sess.loggedin = true;
+
 	if(sess && sess.loggedin){
 		var number = parseInt(sess.number);
 		MongoClient.connect(mongourl,function(err,db){
