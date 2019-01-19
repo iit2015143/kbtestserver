@@ -31,6 +31,7 @@ var getstatus = require('./restaurants/getstatus.js');
 var setstatus =require('./restaurants/setstatus.js');
 var setmsgnumber = require('./restaurants/setmsgnumber.js');
 var setcallnumber = require('./restaurants/setcallnumber.js');
+var getmsgnumber = require('./restaurants/getmsgnumber.js');
 
 // all user related functions
 var addtocart = require('./users/addtocart.js');
@@ -1125,6 +1126,9 @@ app.get('/currenttime', currenttime);
 
 // Sends offers if any, for now function is hardcoded.
 app.get('/getoffers', getoffers);
+
+// Get message number from restaurant document.
+app.get('/getmsgnumber', getmsgnumber);
 
 var server = app.listen(port,function(req,res){
   console.log("server started on "+ port);
