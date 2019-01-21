@@ -1,0 +1,28 @@
+{
+  "name": "kbtestserver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "readConfig.js",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
+    "mongodb": "^3.1.11",
+    "node-gcm": "^1.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start":"nodemon testserver.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajraj27/kbtestserver.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ajraj27/kbtestserver/issues"
+  },
+  "homepage": "https://github.com/ajraj27/kbtestserver#readme"
+}

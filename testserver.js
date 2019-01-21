@@ -8,7 +8,19 @@ var session = require('express-session');
 ObjectId = require('mongodb').ObjectID;
 var readConfig = require('./readConfig');
 var MongoClient = require('mongodb').MongoClient;
+
 var constants = require('./kbdelicates/constants.js');
+const otpUser=require('./functions/Users/OtpUser');
+const otpRestValidity=require('./functions/Restaurants/OtpRestValidity');
+const otpUserValidity=require('./functions/Users/OtpUserValidity');
+const logoutSession=require('./functions//Utils/LogoutSession');
+const saveNotificationID=require('./functions/Users/SaveNotification');
+const orderStatusCustomer=require('./functions/Restaurants/OrderStatusCustomer');
+const writeorderstatus=require('./functions/Users/WriteOrderStatus');
+const updatedatabasefordeclined=require('./functions/Utils/UpdateDatabaseDeclined');
+const extractinfofornotif=require('./functions/Utils/ExtractInfoNotif');
+const orderHistory=require('./functions/Users/OrderHistory');
+const orderHistoryRest=require('./functions/Restaurants/OrderHistoryRest');
 
 var adminOneNum=constants.adminOneNum;
 var adminTwoNum=constants.adminTwoNum;
@@ -63,82 +75,6 @@ app.all("/user/*",function(req,res,next){
 app.use('/user',express.static('secured'));
 
 var sess;
-
-function extractinfofornotif(table,number,message){
-	MongoClient.connect(mongourl,function(err,db){
-		if(err)
-			throw err;
-		var dbo = db.db("khanabottesting");
-
-		//sendnotification("Conditional message","fromnumber")
-		console.log(table,number,message);
-		dbo.collection(table).findOne({"number":number},function(err,mres){
-				if(err)
-				throw err;
-				if(mres){
-					if(mres.notificationid){
-						sendnotification(message ,mres.notificationid);
-					}
-				}
-		});
-
-		db.close();
-	});
-}
-
-function writeorderstatus(id,status,fromnumber,tonumber){
-	MongoClient.connect(mongourl,function(err,db){
-		if(err)
-			throw err;
-		var dbo = db.db("khanabottesting");
-
-		dbo.collection("restaurants").update({"number":tonumber,"orders.id":id},{$set:
-		{"orders.$.status":status}},{upsert:false},
-			function(err,mres){
-				if(err)
-				throw err;
-
-
-
-
-				console.log("restaurant order updated");
-		});
-
-		dbo.collection("users").update({"number":fromnumber,"orders.id":id},{$set:
-		{"orders.$.status":status}},{upsert:false},
-			function(err,mres){
-				if(err)
-				throw err;
-				console.log("user order updated");
-		});
-
-		db.close();
-	});
-
-}
-
-function updatedatabasefordeclined(id,responder,fromnumber,tonumber){
-	MongoClient.connect(mongourl,function(err,db){
-		if(err)
-			throw err;
-		var dbo = db.db("khanabottesting");
-
-		dbo.collection("logdeclinedorder").insert({
-			"id":id,
-			"actor":responder,
-			"fromnumber":fromnumber,
-			"tonumber":tonumber
-		},
-			function(err,mres){
-				if(err)
-				throw err;
-				console.log("declined order logged");
-		});
-
-		db.close();
-	});
-
-}
 
 function checkandwrite(id,status,fromnumber,tonumber,res){
 	tonumber = parseInt(tonumber);
@@ -275,78 +211,6 @@ function sendmessagetorestaurant(number,order,mode,summary,total,tonumber){
 	// });
 }
 
-function getotp(number){
-	var otp = Math.floor(Math.random()*10)+""+ Math.floor(Math.random()*10)+""+Math.floor(Math.random()*10)+""+
-	Math.floor(Math.random()*10)+""+Math.floor(Math.random()*10);
-	if(parseInt(number)==7488663497)
-	otp = "11111";
-	else
-	https.get("https://2factor.in/API/V1/53a00358-7bf4-11e8-a895-0200cd936042/SMS/"+number+"/"+otp+"/khanabot",function(res){
-	  let data = '';
-	  res.on("data",(chunk)=>{
-	    data+=chunk;
-	  });
-	  res.on("end",()=>{
-	    console.log(data);
-	  });
-	  res.on("error",(error)=>{
-	    console.log(error);
-	  });
-	});
-
-	console.log(otp);
-	return otp;
-}
-
-function updateuuidrest(req,res,number,collection){
-	query={};
-	query.number = number;
-	MongoClient.connect(mongourl,function(err,db){
-			if(err)
-			throw err;
-
-			var dbo = db.db("khanabottesting");
-			dbo.collection(collection).findOne(query,function(err,mres){
-					if(err)
-					throw err;
-					if(mres==null){
-						updateuuid(req, res, number, collection);
-					}
-					else {
-						console.log("uuid found and sent, multiple loggdin tracked\n" + mres.uuid);
-						sess.number = number;
-						sess.uuid = mres.uuid;
-						sess.loggedin = true;
-						res.send({uuid:mres.uuid});
-					}
-			});
-			db.close();
-	});
-}
-
-function updateuuid(req,res,number,collection){
-	sess = req.session;
-	//uuid = Math.floor(Math.random()*999999999999 + 1000000000000);
-	uuid = require('crypto').randomBytes(128).toString('hex');
-	query={};
-	query.number = number;
-	MongoClient.connect(mongourl,function(err,db){
-			if(err)
-			throw err;
-
-			var dbo = db.db("khanabottesting");
-			dbo.collection(collection).update(query,{$set:{uuid:uuid}},{upsert:true},function(err,mres){
-					if(err)
-					throw err;
-					console.log("uuidupdated");
-					sess.number = number;
-					sess.uuid = uuid;
-					sess.loggedin = true;
-					res.send({uuid:uuid});
-			});
-	});
-}
-
 app.post('/weblogintrial',function(req,res){
 	sess = req.session;
 	sess.number = 7488663497;
@@ -427,184 +291,20 @@ app.get('/checkstatus',function(req,res){
 		res.send({loggedin:false});
 });
 
-app.post('/number',function(req,res){
-		insertme = {};
-		checkme = {};
-		sess = req.session;
-		insertme.number = parseInt(req.body.number);
-		checkme.number = insertme.number;
-		insertme.otp = getotp(insertme.number);
-		date = new Date();
-		insertme.date = date.getTime();
-		console.log(insertme);
-		MongoClient.connect(mongourl,function(err,db){
-				if(err)
-				throw err;
-				dbo = db.db("khanabottesting");
+//Asks number from user and sends an otp to user
+app.post('/number',otpUser);
 
-				dbo.collection("usersotp").update(checkme,insertme,{upsert:true},function(err,mres){
-						if(err)
-						throw err;
-						sess.number = insertme.number;
-						//console.log(sess.number);
-						res.send({otp:"sent"});
-						console.log("otp sent at "+ insertme.date);
-						//console.log(mres);
-						db.close();
-				});
-		});
-});
+//Checks otp entered for its validity.
+app.post('/otp',otpUserValidity);
 
-app.post('/otp',function(req,res){
-		checkme={};
-		sess = req.session;
-		checkme.number = parseInt(sess.number);
-		checkme.otp = req.body.otp;
-		date = new Date();
-		date = date.getTime();
-		console.log(checkme);
-		MongoClient.connect(mongourl,function(err,db){
-				if(err)
-				throw err;
+//Checks otp entered for its validity.
+app.post('/otprest',otpRestValidity);
 
-				dbo = db.db("khanabottesting");
-				console.log("db taken");
-				dbo.collection("usersotp").findOne(checkme,function(err,mres){
-						if(err)
-						throw err;
+//Logs a user out temporarily.
+app.get('/logout',logoutSession);
 
-						if(mres == null)
-						res.send({otp:"invalid"});
-						else{
-							if(date - mres.date <=180000){
-									updateuuid(req,res,checkme.number,"users");
-							}
-							else {
-								res.send({otp:"timeout"});
-							}
-						}
-						db.close();
-						console.log("db closed");
-				});
-		});
-});
-
-app.post('/otprest',function(req,res){
-		checkme={};
-		sess = req.session;
-		//console.log(sess.number);
-		checkme.number = parseInt(sess.number);
-		checkme.otp = req.body.otp;
-		date = new Date();
-		date = date.getTime();
-		console.log(checkme);
-		MongoClient.connect(mongourl,function(err,db){
-				if(err)
-				throw err;
-
-				dbo = db.db("khanabottesting");
-				console.log("db taken");
-				dbo.collection("usersotp").findOne(checkme,function(err,mres){
-						if(err)
-						throw err;
-
-						if(mres == null)
-						res.send({otp:"invalid"});
-						else{
-							if(date - mres.date <=180000){
-									updateuuidrest(req,res,checkme.number,"restaurants");
-							}
-							else {
-								res.send({otp:"timeout"});
-							}
-						}
-						db.close();
-						console.log("db closed");
-				});
-		});
-});
-
-app.get('/logout',function(req,res){
-    sess = req.session;
-    if(sess && sess.loggedin== true){
-      sess.loggedin=false;
-      sess.number = "";
-      sess.uuid = "";
-    }
-    req.session.destroy(function(err){
-      if(err)
-      throw err;
-      console.log("session destroyed");
-    });
-    res.send({loggedout:"true"});
-});
-
-app.get('/savenotificationid',function(req, res){
-	sess=req.session;
-	if(sess && sess.loggedin==true){
-		var notificationid = req.query.notificationid;
-		console.log(req.query);
-		MongoClient.connect(mongourl,function(err,db){
-			if(err)
-				throw err;
-			var dbo = db.db("khanabottesting");
-			//If want to save location of user
-			dbo.collection("users").update({"number":parseInt(sess.number)},{
-				$set : {
-					"notificationid":notificationid
-				}
-			},{
-				upsert:true
-			},
-			function(err,mres){
-				if(err)
-				throw err;
-				console.log("notificationid updated");
-				res.send({"notificationid":"updated"});
-			});
-
-			db.close();
-		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
-
-});
-
-app.get('/savenotificationidpradeep',function(req, res){
-	sess=req.session;
-	sess.loggedin=true;
-	if(sess && sess.loggedin==true){
-		var notificationid = req.query.notificationid;
-		var number = parseInt(req.query.number);
-		MongoClient.connect(mongourl,function(err,db){
-			if(err)
-				throw err;
-			var dbo = db.db("khanabottesting");
-			//If want to save location of user
-			dbo.collection("restaurants").update({"number":number},{
-				$set : {
-					"notificationid":notificationid
-				}
-			},{
-				upsert:false
-			},
-			function(err,mres){
-				if(err)
-				throw err;
-				console.log("notificationid of pradeep updated");
-				res.send({"notificationidpradeep":"updated"});
-			});
-
-			db.close();
-		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
-
-});
+//Save notificaionid of a user
+app.get('/savenotificationid',saveNotificationID);
 
 app.get('/savenotificationidrest',function(req, res){
 	sess=req.session;
@@ -1180,85 +880,11 @@ app.get('/changeorderstatusrest',function(req,res){
 	}
 });
 
-app.get('/changeorderstatuscustomer',function(req,res){
-	sess = req.session;
-	console.log(req.body);
-	console.log(req.query);
-	if(sess && sess.loggedin){
-		var id = req.query.id;
-		var status = req.query.status;
-		var fromnumber = parseInt(req.query.fromnumber);
-		var tonumber = parseInt(req.query.tonumber);
-		console.log(id,status,fromnumber,tonumber);
+//Changes status of order and is exercised by user.
+app.get('/changeorderstatuscustomer',orderStatusCustomer);
 
-		MongoClient.connect(mongourl,function(err,db){
-		  if(err)
-		  throw err;
-		  dbo = db.db("khanabottesting");
-
-			dbo.collection("restaurants")
-		    	.findOne({"number": tonumber},
-			             {projection: { orders: { $elemMatch: { "id" : id} } } },
-			             function(errT, resultT) {
-				                console.log(resultT);
-			        		if(resultT.orders[0].status == "Pending"){
-										writeorderstatus(id,status,fromnumber,tonumber);
-										updatedatabasefordeclined(id,"customer",fromnumber,tonumber);
-										res.send({"status":"changed"});
-										extractinfofornotif("restaurants",parseInt(resultT.orders[0].tonumber),
-											"The order " + id + " has been declined by the customer.");
-									}
-									else{
-										res.send({"status":"Already " + resultT.orders[0].status});
-									}
-			        	  db.close();
-			});
-
-		});
-
-	}
-	else{
-		res.send({loggedin:false});
-	}
-});
-
-app.get('/orderhistory',function(req,res){
-	sess = req.session;
-
-	if(sess && sess.loggedin){
-		console.log("in order history");
-		MongoClient.connect(mongourl,function(err,db){
-			if(err)
-				throw err;
-
-			var dbo = db.db("khanabottesting");
-			var orders =[];
-			dbo.collection("users").findOne({"number":parseInt(sess.number)},
-			function(err,mres){
-				if(err)
-				throw err;
-				var dborders = mres.orders;
-				if(dborders){
-
-					for(var i=0; i<10; i++){
-						if(dborders.length - i -1 >=0)
-						orders.push(dborders[dborders.length -i - 1]);
-						else {
-							break;
-						}
-					}
-				}
-				//console.log(orders);
-				res.send(orders);
-			});
-
-			db.close();
-		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
-});
+//Sends orderhistory of a user and is capped by a specific limit.
+app.get('/orderhistory',orderHistory);
 
 app.get('/orderhistorypradeep',function(req,res){
 	sess = req.session;
@@ -1298,41 +924,8 @@ app.get('/orderhistorypradeep',function(req,res){
 	}
 });
 
-app.get('/orderhistoryrest',function(req,res){
-	sess = req.session;
-	if(sess && sess.loggedin){
-		var number = parseInt(sess.number);
-		MongoClient.connect(mongourl,function(err,db){
-			if(err)
-				throw err;
-			var dbo = db.db("khanabottesting");
-			var orders =[];
-			dbo.collection("restaurants").findOne({"number":number},
-			function(err,mres){
-				if(err)
-				throw err;
-				var dborders = mres.orders;
-				if(dborders){
-					for(var i=0; i<50; i++){
-						//console.log(orders);
-						if(dborders.length - i -1 >=0)
-						orders.push(dborders[dborders.length -i - 1]);
-						else {
-							break;
-						}
-					}
-				}
-				//console.log(orders);
-				res.send(orders);
-			});
-
-			db.close();
-		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
-});
+//Sends orderhistory of a restaurant and is capped by a specific limit.
+app.get('/orderhistoryrest',orderHistoryRest);
 
 app.get('/getstatus',function(req,res){
 	sess = req.session;
