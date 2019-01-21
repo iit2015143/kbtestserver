@@ -6,6 +6,7 @@ var app = express();
 var bodyparser = require('body-parser');
 var session = require('express-session');
 ObjectId = require('mongodb').ObjectID;
+//Thus reads configuration of restaurant distance where it will deliver food
 var readConfig = require('./readConfig');
 var MongoClient = require('mongodb').MongoClient;
 var constants = require('./kbdelicates/constants.js');
