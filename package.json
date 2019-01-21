@@ -2,7 +2,7 @@
   "name": "kbtestserver",
   "version": "1.0.0",
   "description": "",
-  "main": "readConfig.js",
+  "main": "testserver.js",
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ajraj27/kbtestserver.git"
+    "url": "git+https://github.com/iit2015143/kbtestserver.git"
   },
   "author": "",
   "license": "ISC",

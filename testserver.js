@@ -28,6 +28,29 @@ var port = constants.port;
 var mongourl = constants.mongourl;
 var config = readConfig();
 
+// all restaurant related functions
+var getoffers = require('./restaurants/getoffers.js');
+var adminlistallrest = require('./restaurants/adminlistallrest.js');
+var locationrest = require('./restaurants/locationrest.js');
+var restaurantpage = require('./restaurants/restaurantpage.js');
+var getstatus = require('./restaurants/getstatus.js');
+var setstatus =require('./restaurants/setstatus.js');
+var setmsgnumber = require('./restaurants/setmsgnumber.js');
+var setcallnumber = require('./restaurants/setcallnumber.js');
+var getmsgnumber = require('./restaurants/getmsgnumber.js');
+var getcallnumber = require('./restaurants/getcallnumber.js');
+
+// all user related functions
+var addtocart = require('./users/addtocart.js');
+var currenttime = require('./users/currenttime.js');
+var profilepage = require('./users/profilepage.js');
+var savelocation = require('./users/savelocation.js');
+var savenotificationidrest = require('./users/savenotificationidrest.js');
+
+// all admin only functions
+var getmerest = require('./adminonly/getmerest.js');
+
+
 //all app uses
 app.use(session({
 	secret: 'somesecret',
@@ -66,6 +89,54 @@ app.all("/user/*",function(req,res,next){
 });
 
 app.use('/user',express.static('secured'));
+
+// Save notification id of a user
+app.get('/savenotificationidrest', savenotificationidrest);
+
+// Give admin all the rights that a restaurant admin has by just setting session as a restaurant session.
+app.post('/getmerest', getmerest);
+
+// Lists all restaurants to admin
+app.get('/adminlistallrest', adminlistallrest);
+
+// Saves the location of restaurant in database
+app.post('/locationrest',locationrest);
+
+// Save location (but function not used for now)
+app.get('/savelocation', savelocation);
+
+// Send the whole restaurant document related to a particular number.
+app.get('/restaurantpage', restaurantpage);
+
+// Send the whole user document related to a particular number.
+app.get('/profilepage', profilepage);
+
+// Save user cart to user document for now not in use.
+app.get('/addtocart', addtocart);
+
+// Send status of a restaurant to it, if it is open or closed.
+app.get('/getstatus', getstatus);
+
+// Send status of a restaurant to its document, if it is open or closed.
+app.get('/setstatus', setstatus);
+
+// Set message number to restaurant document.
+app.get('/setmsgnumber', setmsgnumber);
+
+// Set call number to restaurant document.
+app.get('/setcallnumber', setcallnumber);
+
+// Send current time to everyone who makes request.
+app.get('/currenttime', currenttime);
+
+// Sends offers if any, for now function is hardcoded.
+app.get('/getoffers', getoffers);
+
+// Get message number from restaurant document.
+app.get('/getmsgnumber', getmsgnumber);
+
+// Get call number from restaurant document.
+app.get('/getcallnumber', getcallnumber);
 
 // Function modules
 var checkandwrite = require('./functions/checkAndWrite');
