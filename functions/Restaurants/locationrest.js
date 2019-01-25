@@ -1,7 +1,7 @@
 // Saves the location of restaurant in database
 
 var MongoClient = require('mongodb').MongoClient;
-var constants = require('../kbdelicates/constants.js');
+var constants = require('../../kbdelicates/constants.js');
 var mongourl = constants.mongourl;
 
 function locationrest (req,res){

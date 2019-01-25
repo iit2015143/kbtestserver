@@ -1,7 +1,7 @@
 // Save notification id of user
 
 var MongoClient = require('mongodb').MongoClient;
-var constants = require('../kbdelicates/constants.js');
+var constants = require('../../kbdelicates/constants.js');
 var mongourl = constants.mongourl;
 
 function savenotificationidrest (req, res){
