@@ -16,9 +16,6 @@ const otpUserValidity=require('./functions/Users/OtpUserValidity');
 const logoutSession=require('./functions//Utils/LogoutSession');
 const saveNotificationID=require('./functions/Users/SaveNotification');
 const orderStatusCustomer=require('./functions/Restaurants/OrderStatusCustomer');
-const writeorderstatus=require('./functions/Users/WriteOrderStatus');
-const updatedatabasefordeclined=require('./functions/Utils/UpdateDatabaseDeclined');
-const extractinfofornotif=require('./functions/Utils/ExtractInfoNotif');
 const orderHistory=require('./functions/Users/OrderHistory');
 const orderHistoryRest=require('./functions/Restaurants/OrderHistoryRest');
 
@@ -139,15 +136,15 @@ app.get('/getmsgnumber', getmsgnumber);
 app.get('/getcallnumber', getcallnumber);
 
 // Function modules
-var checkandwrite = require('./functions/checkAndWrite');
-var extractinfofornotif = require('./functions/extractInfoForNotif');
-var getotp = require('./functions/getOTP');
-var processrequestnew = require('./functions/processRequestNew');
-var sendnotification = require('./functions/sendNotification');
-var updatedatabasefordeclined = require('./functions/updateDatabaseForDeclined');
-var updateuuid = require('./functions/updateUUID');
-var updateuuidrest = require('./functions/updateUUIDRest');
-var writeorderstatus = require('./functions/writeOrderStatus');
+//var checkandwrite = require('./functions/checkAndWrite');
+//var extractinfofornotif = require('./functions/extractInfoForNotif');
+//var getotp = require('./functions/getOTP');
+//var processrequestnew = require('./functions/processRequestNew');
+//var sendnotification = require('./functions/sendNotification');
+//var updatedatabasefordeclined = require('./functions/updateDatabaseForDeclined');
+//var updateuuid = require('./functions/updateUUID');
+//var updateuuidrest = require('./functions/updateUUIDRest');
+//var writeorderstatus = require('./functions/writeOrderStatus');
 
 //Routes
 const webLoginTrailRoutes = require('./routes/webLoginTrailRoutes');
