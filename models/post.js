@@ -22,6 +22,11 @@ const PostSchema = new Schema({
     required : true ,
      ref : 'user'
   },
+  restaurant : {
+    type : Schema.Types.ObjectId,
+    required : true ,
+     ref : 'restaurant'
+  },
   imgURL : {
     type : [String],
     required : () => {return this.text === undefined},
