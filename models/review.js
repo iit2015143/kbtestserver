@@ -7,6 +7,11 @@ const ReviewSchema = new Schema({
     required : true ,
      ref : 'user'
   },
+  restaurant : {
+    type : Schema.Types.ObjectId,
+    required : true ,
+     ref : 'restaurant'
+  },
   text : {
     type : String,
     required : true
