@@ -47,6 +47,10 @@ var savenotificationidrest = require('./users/savenotificationidrest.js');
 // all admin only functions
 var getmerest = require('./adminonly/getmerest.js');
 
+//Copy all orders from restaurants collection to orders collection
+const {orderCopy}=require('./functions/Utils/orderCopy');
+orderCopy();
+
 
 //all app uses
 app.use(session({
