@@ -4,11 +4,7 @@ const OrderSchema=new mongoose.Schema({
     resname:{
       type:String,
       trim:true,
-      minlength:1
-    },
-
-    restmode:{
-      type:[String],
+      required:true,
       minlength:1
     },
 
@@ -75,7 +71,7 @@ const OrderSchema=new mongoose.Schema({
 
     order:[{
       price:{
-        type:[Number],
+        type:Number,
         minlength:1
       },
       category:{
@@ -97,10 +93,6 @@ const OrderSchema=new mongoose.Schema({
         }
       },
       name:{
-        type:String,
-        minlength:1
-      },
-      resname:{
         type:String,
         minlength:1
       },
