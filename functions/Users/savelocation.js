@@ -1,7 +1,7 @@
 // Save location (but function not used for now)
 
 var MongoClient = require('mongodb').MongoClient;
-var constants = require('../kbdelicates/constants.js');
+var constants = require('../../kbdelicates/constants.js');
 var mongourl = constants.mongourl;
 
 function savelocation (req,res){

@@ -6,6 +6,7 @@ var app = express();
 var bodyparser = require('body-parser');
 var session = require('express-session');
 ObjectId = require('mongodb').ObjectID;
+//Thus reads configuration of restaurant distance where it will deliver food
 var readConfig = require('./readConfig');
 var MongoClient = require('mongodb').MongoClient;
 
@@ -26,26 +27,26 @@ var mongourl = constants.mongourl;
 var config = readConfig();
 
 // all restaurant related functions
-var getoffers = require('./restaurants/getoffers.js');
-var adminlistallrest = require('./restaurants/adminlistallrest.js');
-var locationrest = require('./restaurants/locationrest.js');
-var restaurantpage = require('./restaurants/restaurantpage.js');
-var getstatus = require('./restaurants/getstatus.js');
-var setstatus =require('./restaurants/setstatus.js');
-var setmsgnumber = require('./restaurants/setmsgnumber.js');
-var setcallnumber = require('./restaurants/setcallnumber.js');
-var getmsgnumber = require('./restaurants/getmsgnumber.js');
-var getcallnumber = require('./restaurants/getcallnumber.js');
+var getoffers = require('./functions/Restaurants/getoffers.js');
+var adminlistallrest = require('./functions/Restaurants/adminlistallrest.js');
+var locationrest = require('./functions/Restaurants/locationrest.js');
+var restaurantpage = require('./functions/Restaurants/restaurantpage.js');
+var getstatus = require('./functions/Restaurants/getstatus.js');
+var setstatus =require('./functions/Restaurants/setstatus.js');
+var setmsgnumber = require('./functions/Restaurants/setmsgnumber.js');
+var setcallnumber = require('./functions/Restaurants/setcallnumber.js');
+var getmsgnumber = require('./functions/Restaurants/getmsgnumber.js');
+var getcallnumber = require('./functions/Restaurants/getcallnumber.js');
 
 // all user related functions
-var addtocart = require('./users/addtocart.js');
-var currenttime = require('./users/currenttime.js');
-var profilepage = require('./users/profilepage.js');
-var savelocation = require('./users/savelocation.js');
-var savenotificationidrest = require('./users/savenotificationidrest.js');
+var addtocart = require('./functions/Users/addtocart.js');
+var currenttime = require('./functions/Users/currenttime.js');
+var profilepage = require('./functions/Users/profilepage.js');
+var savelocation = require('./functions/Users/savelocation.js');
+var savenotificationidrest = require('./functions/Users/savenotificationidrest.js');
 
 // all admin only functions
-var getmerest = require('./adminonly/getmerest.js');
+var getmerest = require('./functions/adminonly/getmerest.js');
 
 //Copy all orders from restaurants collection to orders collection
 const {orderCopy}=require('./functions/Utils/orderCopy');
@@ -97,7 +98,7 @@ app.get('/savenotificationidrest', savenotificationidrest);
 // Give admin all the rights that a restaurant admin has by just setting session as a restaurant session.
 app.post('/getmerest', getmerest);
 
-// Lists all restaurants to admin
+// Lists all Restaurants to admin
 app.get('/adminlistallrest', adminlistallrest);
 
 // Saves the location of restaurant in database
@@ -140,6 +141,7 @@ app.get('/getmsgnumber', getmsgnumber);
 app.get('/getcallnumber', getcallnumber);
 
 // Function modules
+//<<<<<<< HEAD
 //var checkandwrite = require('./functions/checkAndWrite');
 //var extractinfofornotif = require('./functions/extractInfoForNotif');
 //var getotp = require('./functions/getOTP');
@@ -149,6 +151,14 @@ app.get('/getcallnumber', getcallnumber);
 //var updateuuid = require('./functions/updateUUID');
 //var updateuuidrest = require('./functions/updateUUIDRest');
 //var writeorderstatus = require('./functions/writeOrderStatus');
+//=======
+var checkandwrite = require('./functions/checkAndWrite');
+var getotp = require('./functions/getOTP');
+var processrequestnew = require('./functions/processRequestNew');
+var sendnotification = require('./functions/sendNotification');
+var updateuuid = require('./functions/updateUUID');
+var updateuuidrest = require('./functions/updateUUIDRest');
+//>>>>>>> 413607b60da94f2f1becf3dd74cda340034e9ee3
 
 //Routes
 const webLoginTrailRoutes = require('./routes/webLoginTrailRoutes');

@@ -1,7 +1,7 @@
 // Get message number from restaurant document.
 
 var MongoClient = require('mongodb').MongoClient;
-var constants = require('../kbdelicates/constants.js');
+var constants = require('../../kbdelicates/constants.js');
 var mongourl = constants.mongourl;
 
 function getmsgnumber (req,res){
