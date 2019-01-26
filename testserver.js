@@ -5,10 +5,32 @@ var express = require('express');
 var app = express();
 var bodyparser = require('body-parser');
 var session = require('express-session');
-ObjectId = require('mongodb').ObjectID;
 //Thus reads configuration of restaurant distance where it will deliver food
 var readConfig = require('./readConfig');
-var MongoClient = require('mongodb').MongoClient;
+
+// all admin only functions
+var getmerest = require('./functions/adminonly/getmerest.js');
+
+
+//all app uses
+app.use(session({
+	secret: 'somesecret',
+	resave: false,
+  saveUninitialized: false,
+	cookie:{
+		maxAge: null
+	}
+}));
+
+app.use(bodyparser.json());
+
+app.use(bodyparser.urlencoded({
+	extended:true
+}));
+
+app.use(express.static('public'));
+
+app.use(express.static('../khanabotsite'));
 
 var constants = require('./kbdelicates/constants.js');
 const otpUser=require('./functions/Users/OtpUser');
@@ -48,38 +70,20 @@ var profilepage = require('./functions/Users/profilepage.js');
 var savelocation = require('./functions/Users/savelocation.js');
 var savenotificationidrest = require('./functions/Users/savenotificationidrest.js');
 
-// all admin only functions
-var getmerest = require('./functions/adminonly/getmerest.js');
-
-
-//all app uses
-app.use(session({
-	secret: 'somesecret',
-	resave: false,
-  saveUninitialized: false,
-	cookie:{
-		maxAge: null
-	}
-}));
-
-app.use(bodyparser.json());
-
-app.use(bodyparser.urlencoded({
-	extended:true
-}));
-
-app.use(express.static('public'));
-
-app.use(express.static('../khanabotsite'));
-
-//all path to server
+// Function modules
+var checkandwrite = require('./functions/checkAndWrite');
+var getotp = require('./functions/getOTP');
+var processrequestnew = require('./functions/processRequestNew');
+var sendnotification = require('./functions/sendNotification');
+var updateuuid = require('./functions/updateUUID');
+var updateuuidrest = require('./functions/updateUUIDRest');
 
 app.get('/',function(req,res){
-  res.send("Zrath Technology Private Limited welcomes you.");
+	res.send("Zrath Technology Private Limited welcomes you.");
 });
 
 app.all("/user/*",function(req,res,next){
-    sess = req.session;
+		sess = req.session;
 		if(sess != null && sess.loggedin == true){
 			next();
 			console.log("checked it");
@@ -91,107 +95,112 @@ app.all("/user/*",function(req,res,next){
 
 app.use('/user',express.static('secured'));
 
-// Save notification id of a user
-app.get('/savenotificationidrest', savenotificationidrest);
+const mongoose = require('mongoose');
 
-// Give admin all the rights that a restaurant admin has by just setting session as a restaurant session.
-app.post('/getmerest', getmerest);
+mongoose.connect(mongourl,{useNewUrlParser : true});
+mongoose.connection.once('open',function(){
+  console.log("Connected");
+}).on('error',function(error){
+  console.log('Error : ' ,error);
+}).then(() => {
+  	//all path to server
 
-// Lists all Restaurants to admin
-app.get('/adminlistallrest', adminlistallrest);
+	// Save notification id of a user
+	app.get('/savenotificationidrest', savenotificationidrest);
 
-// Saves the location of restaurant in database
-app.post('/locationrest',locationrest);
+	// Give admin all the rights that a restaurant admin has by just setting session as a restaurant session.
+	app.post('/getmerest', getmerest);
 
-// Save location (but function not used for now)
-app.get('/savelocation', savelocation);
+	// Lists all Restaurants to admin
+	app.get('/adminlistallrest', adminlistallrest);
 
-// Send the whole restaurant document related to a particular number.
-app.get('/restaurantpage', restaurantpage);
+	// Saves the location of restaurant in database
+	app.post('/locationrest',locationrest);
 
-// Send the whole user document related to a particular number.
-app.get('/profilepage', profilepage);
+	// Save location (but function not used for now)
+	app.get('/savelocation', savelocation);
 
-// Save user cart to user document for now not in use.
-app.get('/addtocart', addtocart);
+	// Send the whole restaurant document related to a particular number.
+	app.get('/restaurantpage', restaurantpage);
 
-// Send status of a restaurant to it, if it is open or closed.
-app.get('/getstatus', getstatus);
+	// Send the whole user document related to a particular number.
+	app.get('/profilepage', profilepage);
 
-// Send status of a restaurant to its document, if it is open or closed.
-app.get('/setstatus', setstatus);
+	// Save user cart to user document for now not in use.
+	app.get('/addtocart', addtocart);
 
-// Set message number to restaurant document.
-app.get('/setmsgnumber', setmsgnumber);
+	// Send status of a restaurant to it, if it is open or closed.
+	app.get('/getstatus', getstatus);
 
-// Set call number to restaurant document.
-app.get('/setcallnumber', setcallnumber);
+	// Send status of a restaurant to its document, if it is open or closed.
+	app.get('/setstatus', setstatus);
 
-// Send current time to everyone who makes request.
-app.get('/currenttime', currenttime);
+	// Set message number to restaurant document.
+	app.get('/setmsgnumber', setmsgnumber);
 
-// Sends offers if any, for now function is hardcoded.
-app.get('/getoffers', getoffers);
+	// Set call number to restaurant document.
+	app.get('/setcallnumber', setcallnumber);
 
-// Get message number from restaurant document.
-app.get('/getmsgnumber', getmsgnumber);
+	// Send current time to everyone who makes request.
+	app.get('/currenttime', currenttime);
 
-// Get call number from restaurant document.
-app.get('/getcallnumber', getcallnumber);
+	// Sends offers if any, for now function is hardcoded.
+	app.get('/getoffers', getoffers);
 
-// Function modules
-var checkandwrite = require('./functions/checkAndWrite');
-var getotp = require('./functions/getOTP');
-var processrequestnew = require('./functions/processRequestNew');
-var sendnotification = require('./functions/sendNotification');
-var updateuuid = require('./functions/updateUUID');
-var updateuuidrest = require('./functions/updateUUIDRest');
+	// Get message number from restaurant document.
+	app.get('/getmsgnumber', getmsgnumber);
 
-//Routes
-const webLoginTrailRoutes = require('./routes/webLoginTrailRoutes');
-app.use('/weblogintrail',webLoginTrailRoutes);
-const loginRoutes = require('./routes/loginRoutes');
-app.use('/login',loginRoutes);
-const loginRestRoutes = require('./routes/loginRestRoutes');
-app.use('/loginrest',loginRestRoutes);
-const appVersionRoutes = require('./routes/appVersionRoutes');
-app.use('/appversion',appVersionRoutes);
-const appVersionRestRoutes = require('./routes/appVersionRestRoutes');
-app.use('/appversionrest',appVersionRestRoutes);
-const changeOrderStatusRestRoutes = require('./routes/changeOrderStatusRestRoutes');
-app.use('/changeorderstatusrest',changeOrderStatusRestRoutes);
-const checkStatusRoutes = require('./routes/checkStatusRoutes');
-app.use('/checkstatus',checkStatusRoutes);
-const requestOrderNewRoutes = require('./routes/requestOrderNewRoutes');
-app.use('/requestordernew',requestOrderNewRoutes);
-const shareLocationRoutes = require('./routes/shareLocationRoutes');
-app.use('/shareLocation',shareLocationRoutes);
+	// Get call number from restaurant document.
+	app.get('/getcallnumber', getcallnumber);
 
-var sess;
+	//Routes
+	const webLoginTrailRoutes = require('./routes/webLoginTrailRoutes');
+	app.use('/weblogintrail',webLoginTrailRoutes);
+	const loginRoutes = require('./routes/loginRoutes');
+	app.use('/login',loginRoutes);
+	const loginRestRoutes = require('./routes/loginRestRoutes');
+	app.use('/loginrest',loginRestRoutes);
+	const appVersionRoutes = require('./routes/appVersionRoutes');
+	app.use('/appversion',appVersionRoutes);
+	const appVersionRestRoutes = require('./routes/appVersionRestRoutes');
+	app.use('/appversionrest',appVersionRestRoutes);
+	const changeOrderStatusRestRoutes = require('./routes/changeOrderStatusRestRoutes');
+	app.use('/changeorderstatusrest',changeOrderStatusRestRoutes);
+	const checkStatusRoutes = require('./routes/checkStatusRoutes');
+	app.use('/checkstatus',checkStatusRoutes);
+	const requestOrderNewRoutes = require('./routes/requestOrderNewRoutes');
+	app.use('/requestordernew',requestOrderNewRoutes);
+	const shareLocationRoutes = require('./routes/shareLocationRoutes');
+	app.use('/shareLocation',shareLocationRoutes);
 
-//Asks number from user and sends an otp to user
-app.post('/number',otpUser);
+	//Asks number from user and sends an otp to user
+	app.post('/number',otpUser);
 
-//Checks otp entered for its validity.
-app.post('/otp',otpUserValidity);
+	//Checks otp entered for its validity.
+	app.post('/otp',otpUserValidity);
 
-//Checks otp entered for its validity.
-app.post('/otprest',otpRestValidity);
+	//Checks otp entered for its validity.
+	app.post('/otprest',otpRestValidity);
 
-//Logs a user out temporarily.
-app.get('/logout',logoutSession);
+	//Logs a user out temporarily.
+	app.get('/logout',logoutSession);
 
-//Save notificaionid of a user
-app.get('/savenotificationid',saveNotificationID);
+	//Save notificaionid of a user
+	app.get('/savenotificationid',saveNotificationID);
 
-//Changes status of order and is exercised by user.
-app.get('/changeorderstatuscustomer',orderStatusCustomer);
+	//Changes status of order and is exercised by user.
+	app.get('/changeorderstatuscustomer',orderStatusCustomer);
 
-//Sends orderhistory of a user and is capped by a specific limit.
-app.get('/orderhistory',orderHistory);
+	//Sends orderhistory of a user and is capped by a specific limit.
+	app.get('/orderhistory',orderHistory);
 
-//Sends orderhistory of a restaurant and is capped by a specific limit.
-app.get('/orderhistoryrest',orderHistoryRest);
+	//Sends orderhistory of a restaurant and is capped by a specific limit.
+	app.get('/orderhistoryrest',orderHistoryRest);
+
+	/* //Copy all orders from restaurants collection to orders collection
+	 const orderCopy=require('./functions/Utils/orderCopy');
+	orderCopy(); */
+});
 
 var server = app.listen(port,function(req,res){
   console.log("server started on "+ port);

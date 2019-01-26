@@ -1,5 +1,3 @@
-ObjectId = require('mongodb').ObjectID;
-var MongoClient = require('mongodb').MongoClient;
 
 var constants = require('../kbdelicates/constants');
 var mongourl = constants.mongourl;
@@ -7,34 +5,23 @@ var mongourl = constants.mongourl;
 // Other Neccesary functions
 var extractinfofornotif = require('./extractInfoForNotif');
 var writeorderstatus = require('./writeOrderStatus');
+const Order = require('../models/order');
 
 // Actual Body
 function checkacceptancetodecline(tonumber,id){
 	console.log("checking for inconsistency");
 	tonumber = parseInt(tonumber);
-	MongoClient.connect(mongourl,function(err,db){
-	  if(err)
-	  throw err;
-	  dbo = db.db("khanabottesting");
+	Order.findOne({id : id,tonumber : tonumber}).then((order) => {
+		if(order.status == "Pending"){
+			writeorderstatus(order.id,"Declined",
+				parseInt(order.fromnumber),parseInt(order.tonumber));
 
-		dbo.collection("restaurants")
-		    .findOne({"number": tonumber},
-		             {projection: { orders: { $elemMatch: { "id" : id} } } },
-		             function(errT, resultT) {
-			              //console.log(resultT);
-		        		if(resultT.orders[0].status == "Pending"){
-									writeorderstatus(resultT.orders[0].id,"Declined",
-										parseInt(resultT.orders[0].fromnumber),parseInt(resultT.orders[0].tonumber));
+			extractinfofornotif("users",parseInt(order.fromnumber),          /* ------------------- extractinfofornotif,writeorderstatus ---------------------*/
+				"Your order has been auto declined, sorry for inconvenience");
 
-									extractinfofornotif("users",parseInt(resultT.orders[0].fromnumber),          /* ------------------- extractinfofornotif,writeorderstatus ---------------------*/
-										"Your order has been auto declined, sorry for inconvenience");
-
-									extractinfofornotif("restaurants",parseInt(resultT.orders[0].tonumber),
-										"The order has been declined as you did not respond.");
-								}
-		        	  db.close();
-		});
-
+			extractinfofornotif("restaurants",parseInt(order.tonumber),
+				"The order has been declined as you did not respond.");
+		}
 	});
 }
 
