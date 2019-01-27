@@ -5,11 +5,13 @@
 const router = require('express').Router();
 
 var MongoClient = require('mongodb').MongoClient;
+var readConfig = require('../readConfig');
+var config = readConfig();
+console.log(config);
 ObjectId = require('mongodb').ObjectID;
 
 var constants = require('../kbdelicates/constants');
 var mongourl = constants.mongourl;
-
 var bodyParser = require('body-parser');
 var urlEncodedParser =  bodyParser.urlencoded({extended : false});
 
