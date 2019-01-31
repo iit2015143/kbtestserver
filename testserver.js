@@ -17,9 +17,6 @@ const otpUserValidity=require('./functions/Users/OtpUserValidity');
 const logoutSession=require('./functions//Utils/LogoutSession');
 const saveNotificationID=require('./functions/Users/SaveNotification');
 const orderStatusCustomer=require('./functions/Restaurants/OrderStatusCustomer');
-const writeorderstatus=require('./functions/Users/WriteOrderStatus');
-const updatedatabasefordeclined=require('./functions/Utils/UpdateDatabaseDeclined');
-const extractinfofornotif=require('./functions/Utils/ExtractInfoNotif');
 const orderHistory=require('./functions/Users/OrderHistory');
 const orderHistoryRest=require('./functions/Restaurants/OrderHistoryRest');
 
@@ -50,6 +47,10 @@ var savenotificationidrest = require('./functions/Users/savenotificationidrest.j
 
 // all admin only functions
 var getmerest = require('./functions/adminonly/getmerest.js');
+
+//Copy all orders from restaurants collection to orders collection
+const {orderCopy}=require('./functions/Utils/orderCopy');
+orderCopy();
 
 
 //all app uses
@@ -140,12 +141,24 @@ app.get('/getmsgnumber', getmsgnumber);
 app.get('/getcallnumber', getcallnumber);
 
 // Function modules
+//<<<<<<< HEAD
+//var checkandwrite = require('./functions/checkAndWrite');
+//var extractinfofornotif = require('./functions/extractInfoForNotif');
+//var getotp = require('./functions/getOTP');
+//var processrequestnew = require('./functions/processRequestNew');
+//var sendnotification = require('./functions/sendNotification');
+//var updatedatabasefordeclined = require('./functions/updateDatabaseForDeclined');
+//var updateuuid = require('./functions/updateUUID');
+//var updateuuidrest = require('./functions/updateUUIDRest');
+//var writeorderstatus = require('./functions/writeOrderStatus');
+//=======
 var checkandwrite = require('./functions/checkAndWrite');
 var getotp = require('./functions/getOTP');
 var processrequestnew = require('./functions/processRequestNew');
 var sendnotification = require('./functions/sendNotification');
 var updateuuid = require('./functions/updateUUID');
 var updateuuidrest = require('./functions/updateUUIDRest');
+//>>>>>>> 413607b60da94f2f1becf3dd74cda340034e9ee3
 
 //Routes
 const webLoginTrailRoutes = require('./routes/webLoginTrailRoutes');

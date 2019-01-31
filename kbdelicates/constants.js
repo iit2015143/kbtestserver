@@ -7,7 +7,6 @@ var sender = {};
 var ordertimeout = 1320000;
 var orderalert = 120000;
 
-
 module.exports={
   adminOneNum,
   adminTwoNum,
