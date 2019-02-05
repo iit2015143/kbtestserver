@@ -1,33 +1,16 @@
-var MongoClient = require('mongodb').MongoClient;
+
 var constants = require('../../kbdelicates/constants.js');
 const mongourl=constants.mongourl;
-
+const Order = require('../../models/order');
 const writeorderstatus=(id,status,fromnumber,tonumber) => {
-	MongoClient.connect(mongourl,function(err,db){
-		if(err)
+
+	Order.findOneAndUpdate({id: id,fromnumber: fromnumber,tonumber:tonumber},{$set:
+	{status : status}},{upsert:false},
+		function(err,mres){
+			if(err)
 			throw err;
-		var dbo = db.db("khanabottesting");
-
-		dbo.collection("restaurants").update({"number":tonumber,"orders.id":id},{$set:
-		{"orders.$.status":status}},{upsert:false},
-			function(err,mres){
-				if(err)
-				throw err;
-
-				console.log("restaurant order updated");
-		});
-
-		dbo.collection("users").update({"number":fromnumber,"orders.id":id},{$set:
-		{"orders.$.status":status}},{upsert:false},
-			function(err,mres){
-				if(err)
-				throw err;
-				console.log("user order updated");
-		});
-
-		db.close();
+			console.log("restaurant order updated");
 	});
-
 }
 
 module.exports=writeorderstatus;

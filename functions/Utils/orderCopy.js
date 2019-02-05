@@ -19,6 +19,7 @@ const orderCopy=() => {
 
       db.close();
   });
+  console.log("Done");
 }
 
-module.exports={orderCopy};
+module.exports= orderCopy ;
