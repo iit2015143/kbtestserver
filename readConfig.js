@@ -4,5 +4,4 @@ function readconfig(callback){
   obj = JSON.parse(obj);
   return obj;
 }
-
 module.exports = readconfig;
