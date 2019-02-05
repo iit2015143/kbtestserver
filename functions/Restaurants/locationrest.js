@@ -22,7 +22,7 @@ function locationrest (req,res){
 			//If want to save location of user
 			dbo.collection("restaurants").update({"number":parseInt(sess.number)},{
 				$set : {
-					"Location":location
+					location:{type : "Point",coordinates : [location.long,location.lat]}
 				}
 			},{
 				upsert:false
