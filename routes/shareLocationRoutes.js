@@ -13,6 +13,9 @@ var mongourl = constants.mongourl;
 var bodyParser = require('body-parser');
 var urlEncodedParser =  bodyParser.urlencoded({extended : false});
 
+const {/*geoLocationFilter,uncomment to use*/findLocationWise} = require('../functions/Restaurants/geoLocationFilter');
+//	geoLocationFilter();
+
 router.post('/',urlEncodedParser,function(req,res){
 	sess = req.session;
 
@@ -37,17 +40,19 @@ router.post('/',urlEncodedParser,function(req,res){
 				throw err;
 			var dbo = db.db("khanabottesting");
 
-			dbo.collection("restaurants").find({
+			var list = findLocationWise(long,lat,res);
+			//console.log(list.length);
+			/*dbo.collection("restaurants").find({
 				"Location.lat":{$gt:lat-config.dlatitude,$lt:lat+config.dlatitude},
 				"Location.long":{$gt:long-config.dlongitude,$lt:long+config.dlongitude},"status":"on","admin":"on"}).
 				project({orders:0, _id:0,notificationid:0,uuid:0}).sort({rating:-1}).toArray(function(err,mres){
 					res.send(mres);
 					//console.log(mres);
 					console.log(lat,long);
-      	});
+      	});*/
 
 			//If want to save location of user
-			dbo.collection("users").update({"number":parseInt(sess.number)},{
+			dbo.collection("users").updateOne({"number":parseInt(sess.number)},{
 				$set : {
 					"Location":Location
 				}
