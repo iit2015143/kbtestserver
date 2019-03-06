@@ -8,6 +8,7 @@ var processrequestnew = require('../functions/processRequestNew');
 
 var bodyParser = require('body-parser');
 var urlEncodedParser =  bodyParser.urlencoded({extended : false});
+const Order = require('../models/order');
 
 router.post('/',urlEncodedParser,function(req,res){
 	sess = req.session;
@@ -17,7 +18,7 @@ router.post('/',urlEncodedParser,function(req,res){
 		var order = req.body.order;
 		//console.log(order);
 
-		order = JSON.parse(order);
+		order = new Order(JSON.parse(order));
 		console.log(order.ordermode,order.time);
 		processrequestnew(order,sess.number);  /* ---------------------------------- processrequestnew --------------------------------------------- */
 		res.send({"orders":"requested"});
