@@ -2,17 +2,42 @@
 
 
 
-Database Cleaning
------------------
-* Write a javascirpt code that will take all existing orders and copy to a **orders** database
-* Do not delete existing arrays
-* Make a mongoose schema for the orders collection and describe any field if needed
-* Edit all the urls and corresponding functions which has order collection
+Session Management
+------------------
+* Write a function that will each time take care of secrity and include it in all the paths(get and post).
 
-Schema Building
----------------
-* Review
-* Posts (will be having comment)
+Order Issue
+-----------
+* when order is queried send 10 or specified number of orders or a range(10-20,20-50).
+
+Frontend requirements
+---------------------
+* User Profile
+* Restaurant Profile
+* Newsfeed Post
+* Newsfeed query and rendering
+
+User Profile
+------------
+* Profile image
+* Other information(bulk write & single edit option)
+* Image storage
+
+Restaurant Profile
+------------------
+* Profile image
+* Other information
+
+Newsfeed Post
+-------------
+* Image or text
+* Image and text
+* Reference restaurants
+* Like option
+
+Newsfeed query
+--------------
+* First simple query
 
 Ranking
 -------
