@@ -8,7 +8,7 @@ var processrequestnew = require('../functions/processRequestNew');
 
 var bodyParser = require('body-parser');
 var urlEncodedParser =  bodyParser.urlencoded({extended : false});
-const Order = require('../models/order');
+const Order = require('../Models/order');
 
 router.post('/',urlEncodedParser,function(req,res){
 	sess = req.session;

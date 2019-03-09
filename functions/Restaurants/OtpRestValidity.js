@@ -29,7 +29,7 @@ const otpRest=(req,res) => {
           res.send({otp:"invalid"});
           else{
             if(date - mres.date <=180000){
-                updateuuidrest(req,res,checkme.number,"restaurants");
+                updateuuidRest(req,res,checkme.number,"restaurants");
             }
             else {
               res.send({otp:"timeout"});

@@ -1,5 +1,6 @@
 var MongoClient = require('mongodb').MongoClient;
 var constants = require('../../kbdelicates/constants.js');
+var mongourl = constants.mongourl;
 
 const updateuuid=(req,res,number,collection) => {
 	const sess = req.session;

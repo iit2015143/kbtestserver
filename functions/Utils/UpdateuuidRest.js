@@ -6,6 +6,7 @@ const updateuuid=require('./Updateuuid');
 const updateuuidrest=(req,res,number,collection) => {
 	const query={};
 	query.number = number;
+	const sess = req.session;	
 	MongoClient.connect(mongourl,function(err,db){
 			if(err)
 			throw err;

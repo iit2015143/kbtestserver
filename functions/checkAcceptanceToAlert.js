@@ -3,7 +3,7 @@ var constants = require('../kbdelicates/constants');
 var adminOneNum=constants.adminOneNum;
 var adminTwoNum=constants.adminTwoNum;
 var mongourl = constants.mongourl;
-const Order = require('../models/order');
+const Order = require('../Models/order');
 
 // Other Neccesary functions
 var sendmessagetorestaurant = require('./sendMessageToRestaurant');

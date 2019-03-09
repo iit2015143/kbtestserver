@@ -8,7 +8,7 @@ var mongourl = constants.mongourl;
 var extractinfofornotif = require('./extractInfoForNotif');
 var checkacceptancetoalert = require('./checkAcceptanceToAlert');
 var checkacceptancetodecline = require('./checkAcceptanceToDecline');
-const Order = require('../models/order');
+const Order = require('../Models/order');
 
 // Actual Body
 function processrequestnew(order,number){
@@ -27,6 +27,7 @@ function processrequestnew(order,number){
 		summary = summary + "\nCOD" +" in time : " + order.time;
 	}
 	order.summary = summary;
+	order = new Order(order);
 	order.save().then(() =>{
 		extractinfofornotif("restaurants",parseInt(order.tonumber),"There is a new order kindly see the order");  /* ------------------- extractinfofornotif,checkacceptancetodecline,checkacceptancetoalert ---------------------*/
 

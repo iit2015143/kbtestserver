@@ -37,7 +37,6 @@ const OrderSchema=new mongoose.Schema({
     },
     glocation:{
       type:String,
-      required:true,
       trim:true,
       minlength:1
     },
@@ -47,9 +46,9 @@ const OrderSchema=new mongoose.Schema({
       trim:true,
       minlength:1
     },
-    summmary:{
+    summary:{
       type:String,
-      required:true,
+      //  required:true,
       trim:true,
       minlength:1
     },

@@ -2,14 +2,14 @@
 
 var constants = require('../../kbdelicates/constants.js');
 const mongourl=constants.mongourl;
-const Order = require('../../models/order');
+const Order = require('../../Models/order');
 
 const orderHistory=(req,res) => {
   const sess = req.session;
 
 	if(sess && sess.loggedin){
 		console.log("in order history");
-    Order.find({fromnumber : sess.number}).then((orders) =>{
+    Order.find({fromnumber : sess.number}).sort({id:-1}).limit(30).then((orders) =>{
       res.send(orders);
     });
 	}

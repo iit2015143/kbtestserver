@@ -31,7 +31,9 @@ const findLocationWise = async (long,lat,res) =>{
            $minDistance: 0,
            $maxDistance: 5000
         }
-     }
+     },
+     status:"on",
+     admin:"on"
    }
 );
 var arr  = async (t) => {return t.toArray()}
@@ -41,6 +43,6 @@ res.send(as);
 }
 
 module.exports = {
-  //geoLocationFilter,  //uncomment for using
+  geoLocationFilter,  //uncomment for using
   findLocationWise
 };

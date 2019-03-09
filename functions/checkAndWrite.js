@@ -5,7 +5,7 @@ var mongourl = constants.mongourl;
 // Other Neccesary functions
 var extractinfofornotif = require('./extractInfoForNotif');
 var writeorderstatus = require('./writeOrderStatus');
-const Order = require('../models/order');
+const Order = require('../Models/order');
 
 //Actual Body
 function checkandwrite(id,status,fromnumber,tonumber,res){

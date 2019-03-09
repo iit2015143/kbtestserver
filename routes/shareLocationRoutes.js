@@ -13,8 +13,9 @@ var mongourl = constants.mongourl;
 var bodyParser = require('body-parser');
 var urlEncodedParser =  bodyParser.urlencoded({extended : false});
 
-const {/*geoLocationFilter,uncomment to use*/findLocationWise} = require('../functions/Restaurants/geoLocationFilter');
-//	geoLocationFilter();
+const {/*uncomment to use on different database geoLocationFilter,*/
+	findLocationWise} = require('../functions/Restaurants/geoLocationFilter');
+//geoLocationFilter();
 
 router.post('/',urlEncodedParser,function(req,res){
 	sess = req.session;

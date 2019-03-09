@@ -200,9 +200,9 @@ mongoose.connection.once('open',function(){
 	//Sends orderhistory of a restaurant and is capped by a specific limit.
 	app.get('/orderhistoryrest',orderHistoryRest);
 
-	/* //Copy all orders from restaurants collection to orders collection
+	//Copy all orders from restaurants collection to orders collection
 	 const orderCopy=require('./functions/Utils/orderCopy');
-	orderCopy(); */
+	orderCopy();
 });
 
 var server = app.listen(port,function(req,res){
