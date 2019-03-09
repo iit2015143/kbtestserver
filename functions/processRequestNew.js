@@ -8,7 +8,7 @@ var mongourl = constants.mongourl;
 var extractinfofornotif = require('./extractInfoForNotif');
 var checkacceptancetoalert = require('./checkAcceptanceToAlert');
 var checkacceptancetodecline = require('./checkAcceptanceToDecline');
-const Order = require('../models/order');
+const Order = require('../Models/order');
 
 // Actual Body
 function processrequestnew(order,number){

@@ -6,7 +6,7 @@ const mongourl=constants.mongourl;
 const writeordestatus=require('../Users/WriteOrderStatus');
 const updatedatabasefordeclined=require('../Utils/UpdateDatabaseDeclined');
 const extractinfofornotif=require('../Utils/ExtractInfoNotif');
-const Order = require('../../models/order');
+const Order = require('../../Models/order');
 
 const orderStatusCustomer=(req,res) => {
   const sess = req.session;
