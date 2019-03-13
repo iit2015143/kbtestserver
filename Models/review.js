@@ -29,6 +29,10 @@ const ReviewSchema = new Schema({
     required : true,
     default : Date.now()
   }
+  rank: {
+    type: Number,
+    required: true
+  }
 });
 
 const Review = mongoose.model('review',ReviewSchema);
