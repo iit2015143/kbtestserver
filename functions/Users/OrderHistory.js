@@ -6,12 +6,12 @@ const Order = require('../../Models/order');
 
 const orderHistory=(req,res) => {
   const sess = req.session;
-
 	if(sess && sess.loggedin){
+    let page =  parseInt(req.query.page);
 		console.log("in order history");
-    Order.find({fromnumber : sess.number}).sort({id:-1}).limit(30).then((orders) =>{
-      res.send(orders);
-    });
+      Order.find({fromnumber : sess.number}).sort({id:-1}).skip(page*10).limit(10).then((orders) =>{
+        res.send(orders);
+      });
 	}
 	else{
 		res.send({loggedin:false});
