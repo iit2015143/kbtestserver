@@ -5,6 +5,7 @@
   "main": "testserver.js",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
