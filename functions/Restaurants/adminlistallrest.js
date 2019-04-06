@@ -9,8 +9,6 @@ function adminlistallrest (req,res){
 	sess = req.session;
 	sess.loggedin = true;
 
-	if(sess && sess.loggedin){
-
 		MongoClient.connect(mongourl,function(err,db){
 			if(err)
 				throw err;
@@ -24,10 +22,6 @@ function adminlistallrest (req,res){
 
 			db.close();
 		});
-	}
-	else{
-		res.send({loggedin:false});
-	};
 };
 
 module.exports = adminlistallrest;

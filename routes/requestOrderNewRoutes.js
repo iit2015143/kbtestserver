@@ -13,7 +13,7 @@ const Order = require('../Models/order');
 router.post('/',urlEncodedParser,function(req,res){
 	sess = req.session;
 	console.log("something came");
-	if(sess && sess.loggedin){
+	
 		console.log("something came in");
 		var order = req.body.order;
 		//console.log(order);
@@ -23,10 +23,7 @@ router.post('/',urlEncodedParser,function(req,res){
 		processrequestnew(order,sess.number);  /* ---------------------------------- processrequestnew --------------------------------------------- */
 		res.send({"orders":"requested"});
 
-	}
-	else{
-		res.send({loggedin:false});
-	}
+	
 });
 
 module.exports = router;

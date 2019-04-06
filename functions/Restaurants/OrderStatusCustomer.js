@@ -9,9 +9,7 @@ const extractinfofornotif=require('../Utils/ExtractInfoNotif');
 const Order = require('../../Models/order');
 
 const orderStatusCustomer=(req,res) => {
-  const sess = req.session;
 	console.log(req.query);
-	if(sess && sess.loggedin){
 		var id = req.query.id;
 		var status = req.query.status;
 		var fromnumber = parseInt(req.query.fromnumber);
@@ -28,10 +26,6 @@ const orderStatusCustomer=(req,res) => {
         res.send({"status":"Already " + order.status});
       }
     });
-	}
-	else{
-		res.send({loggedin:false});
-	}
 }
 
 module.exports=orderStatusCustomer;

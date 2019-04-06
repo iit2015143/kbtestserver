@@ -2,11 +2,9 @@
 
 function getmerest (req,res){
 	sess = req.session;
-	if(sess && sess.loggedin){
 		var number = parseInt(req.body.number);
 		sess.number = number;
 		res.send({status:"done"});
-	}
 }
 
 module.exports = getmerest;

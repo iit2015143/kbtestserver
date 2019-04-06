@@ -5,8 +5,6 @@ var constants = require('../../kbdelicates/constants.js');
 const mongourl=constants.mongourl;
 
 const saveNotificationID=(req,res) => {
-  sess=req.session;
-  if(sess && sess.loggedin==true){
     var notificationid = req.query.notificationid;
     console.log(req.query);
     MongoClient.connect(mongourl,function(err,db){
@@ -30,10 +28,6 @@ const saveNotificationID=(req,res) => {
 
       db.close();
     });
-  }
-  else{
-    res.send({loggedin:false});
-  }
 }
 
 module.exports=saveNotificationID;

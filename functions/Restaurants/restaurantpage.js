@@ -5,8 +5,6 @@ var constants = require('../../kbdelicates/constants.js');
 var mongourl = constants.mongourl;
 
 function restaurantpage (req,res){
-	sess = req.session;
-	if(sess && sess.loggedin){
 		var number = parseFloat(req.query.number);
 
 		MongoClient.connect(mongourl,function(err,db){
@@ -20,10 +18,6 @@ function restaurantpage (req,res){
 				console.log(number);
       });
 		});
-	}
-	else{
-		res.send({loggedin:false});
-	};
 };
 
 module.exports = restaurantpage;

@@ -10,13 +10,11 @@ var updatedatabasefordeclined = require('../functions/updateDatabaseForDeclined'
 var writeorderstatus = require('../functions/writeOrderStatus');
 
 router.get('/',function(req,res){
-	sess = req.session;
-	if(sess && sess.loggedin){
+		sess = req.session;
 		var id = req.query.id;
 		var status = req.query.status;
 		var fromnumber = parseInt(req.query.fromnumber);
 		var tonumber = parseInt(sess.number);
-
 
 
 		if(status=="Accepted"){
@@ -32,10 +30,7 @@ router.get('/',function(req,res){
 			res.send({status:"changed"});
 		}
 
-	}
-	else{
-		res.send({loggedin:false});
-	}
+
 });
 
 module.exports = router;

@@ -5,9 +5,6 @@ var constants = require('../../kbdelicates/constants.js');
 var mongourl = constants.mongourl;
 
 function getcallnumber (req,res){
-	sess = req.session;
-
-	if(sess && sess.loggedin){
 		var number = parseInt(sess.number);
 		MongoClient.connect(mongourl,function(err,db){
 			if(err)
@@ -25,10 +22,7 @@ function getcallnumber (req,res){
 
 			db.close();
 		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
+	
 };
 
 module.exports = getcallnumber;

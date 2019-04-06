@@ -5,9 +5,6 @@ var constants = require('../../kbdelicates/constants.js');
 var mongourl = constants.mongourl;
 
 function savelocation (req,res){
-	sess = req.session;
-
-	if(sess && sess.loggedin){
 		var lat = parseFloat(req.query.lat);
 		var long = parseFloat(req.query.long);
 		var locality;
@@ -55,10 +52,6 @@ function savelocation (req,res){
 
 			db.close();
 		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
 };
 
 module.exports = savelocation;

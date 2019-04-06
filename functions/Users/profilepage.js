@@ -5,9 +5,6 @@ var constants = require('../../kbdelicates/constants.js');
 var mongourl = constants.mongourl;
 
 function profilepage (req,res){
-	sess = req.session;
-
-	if(sess && sess.loggedin){
 		var number = parseInt(req.query.number);
 
 		MongoClient.connect(mongourl,function(err,db){
@@ -21,10 +18,6 @@ function profilepage (req,res){
 				console.log(number);
       });
 		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
 }
 
 module.exports = profilepage;
