@@ -5,16 +5,11 @@ const mongourl=constants.mongourl;
 const Order = require('../../Models/order');
 
 const orderHistoryRest=(req,res) => {
-  sess = req.session;
-	if(sess && sess.loggedin){
 		var number = parseInt(sess.number);
     Order.find({tonumber : number}).then((orders) =>{
       res.send(orders);
     });
-	}
-	else{
-		res.send({loggedin:false});
-	}
+	
 }
 
 module.exports=orderHistoryRest;

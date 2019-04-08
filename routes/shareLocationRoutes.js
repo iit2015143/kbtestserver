@@ -18,9 +18,8 @@ const {/*uncomment to use on different database geoLocationFilter,*/
 //geoLocationFilter();
 
 router.post('/',urlEncodedParser,function(req,res){
-	sess = req.session;
+		sess = req.session;
 
-	if(sess && sess.loggedin){
 		var lat = parseFloat(req.body.lat);
 		var long = parseFloat(req.body.long);
 		if(req.body.gLocation){
@@ -68,10 +67,6 @@ router.post('/',urlEncodedParser,function(req,res){
 
 			db.close();
 		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
 });
 
 module.exports = router;

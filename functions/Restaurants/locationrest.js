@@ -5,9 +5,6 @@ var constants = require('../../kbdelicates/constants.js');
 var mongourl = constants.mongourl;
 
 function locationrest (req,res){
-	sess = req.session;
-
-	if(sess && sess.loggedin){
 
 		var location = req.body.location;
 		location = JSON.parse(location);
@@ -36,10 +33,6 @@ function locationrest (req,res){
 
 			db.close();
 		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
 }
 
 module.exports = locationrest;

@@ -5,8 +5,6 @@ var constants = require('../../kbdelicates/constants.js');
 var mongourl = constants.mongourl;
 
 function setstatus (req,res){
-	sess = req.session;
-	if(sess && sess.loggedin){
 		var number = parseInt(sess.number);
 		var status = req.query.status;
 		MongoClient.connect(mongourl,function(err,db){
@@ -23,10 +21,6 @@ function setstatus (req,res){
 
 			db.close();
 		});
-	}
-	else{
-		res.send({loggedin:false});
-	}
 };
 
 module.exports = setstatus;

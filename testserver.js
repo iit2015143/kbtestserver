@@ -82,15 +82,28 @@ app.get('/',function(req,res){
 	res.send("Zrath Technology Private Limited welcomes you.");
 });
 
-app.all("/user/*",function(req,res,next){
-		sess = req.session;
-		if(sess != null && sess.loggedin == true){
-			next();
-			console.log("checked it");
-		}
-		else {
-			res.redirect('/login.html');
-		}
+	//For logging the user and restaurants
+	const webLoginTrailRoutes = require('./routes/webLoginTrailRoutes');
+	app.use('/weblogintrail',webLoginTrailRoutes);
+	const loginRoutes = require('./routes/loginRoutes');
+	app.use('/login',loginRoutes);
+	const loginRestRoutes = require('./routes/loginRestRoutes');
+	app.use('/loginrest',loginRestRoutes);
+
+
+app.all("*",(req,res,next) => {
+	const sess=req.session;
+	if(sess!=null && sess.loggedin){
+		next();
+		console.log("Loggedin");
+		
+	}
+
+	else{
+		console.log("Not logged in");
+		res.redirect("/login.html");
+
+	}
 });
 
 app.use('/user',express.static('secured'));
@@ -157,20 +170,12 @@ mongoose.connection.once('open',function(){
 	app.get('/getcallnumber', getcallnumber);
 
 	//Routes
-	const webLoginTrailRoutes = require('./routes/webLoginTrailRoutes');
-	app.use('/weblogintrail',webLoginTrailRoutes);
-	const loginRoutes = require('./routes/loginRoutes');
-	app.use('/login',loginRoutes);
-	const loginRestRoutes = require('./routes/loginRestRoutes');
-	app.use('/loginrest',loginRestRoutes);
 	const appVersionRoutes = require('./routes/appVersionRoutes');
 	app.use('/appversion',appVersionRoutes);
 	const appVersionRestRoutes = require('./routes/appVersionRestRoutes');
 	app.use('/appversionrest',appVersionRestRoutes);
 	const changeOrderStatusRestRoutes = require('./routes/changeOrderStatusRestRoutes');
 	app.use('/changeorderstatusrest',changeOrderStatusRestRoutes);
-	const checkStatusRoutes = require('./routes/checkStatusRoutes');
-	app.use('/checkstatus',checkStatusRoutes);
 	const requestOrderNewRoutes = require('./routes/requestOrderNewRoutes');
 	app.use('/requestordernew',requestOrderNewRoutes);
 	const shareLocationRoutes = require('./routes/shareLocationRoutes');
