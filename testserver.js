@@ -7,11 +7,12 @@ var bodyparser = require('body-parser');
 var session = require('express-session');
 //Thus reads configuration of restaurant distance where it will deliver food
 var readConfig = require('./readConfig');
+var cors = require('cors');
 
 // all admin only functions
 var getmerest = require('./functions/adminonly/getmerest.js');
 
-
+app.use(cors());
 //all app uses
 app.use(session({
 	secret: 'somesecret',
@@ -180,6 +181,8 @@ mongoose.connection.once('open',function(){
 	app.use('/requestordernew',requestOrderNewRoutes);
 	const shareLocationRoutes = require('./routes/shareLocationRoutes');
 	app.use('/shareLocation',shareLocationRoutes);
+	const getDataRoutes = require('./routes/getDataRoutes');
+	app.use('/getData',getDataRoutes);
 
 	//Asks number from user and sends an otp to user
 	app.post('/number',otpUser);
