@@ -63,6 +63,7 @@ var setmsgnumber = require('./functions/Restaurants/setmsgnumber.js');
 var setcallnumber = require('./functions/Restaurants/setcallnumber.js');
 var getmsgnumber = require('./functions/Restaurants/getmsgnumber.js');
 var getcallnumber = require('./functions/Restaurants/getcallnumber.js');
+const setResImage=require('./functions/Restaurants/setResImage');
 
 // all user related functions
 var addtocart = require('./functions/Users/addtocart.js');
@@ -70,6 +71,7 @@ var currenttime = require('./functions/Users/currenttime.js');
 var profilepage = require('./functions/Users/profilepage.js');
 var savelocation = require('./functions/Users/savelocation.js');
 var savenotificationidrest = require('./functions/Users/savenotificationidrest.js');
+const setUserImage=require('./functions/Users/setUserImage');
 
 // Function modules
 var checkandwrite = require('./functions/checkAndWrite');
@@ -208,6 +210,13 @@ mongoose.connection.once('open',function(){
 
 	//Sends orders of a particular user between start and end index
 	app.post('/orderrange',getOrderRange);
+
+	//Set image of a user
+	app.post('/userimage',setUserImage);
+
+	//Set image of a restaurant
+	app.post('/resimage',setResImage);
+
 
 	//Copy all orders from restaurants collection to orders collection
 	 const orderCopy=require('./functions/Utils/orderCopy');
