@@ -62,6 +62,7 @@ var setmsgnumber = require('./functions/Restaurants/setmsgnumber.js');
 var setcallnumber = require('./functions/Restaurants/setcallnumber.js');
 var getmsgnumber = require('./functions/Restaurants/getmsgnumber.js');
 var getcallnumber = require('./functions/Restaurants/getcallnumber.js');
+var setresname = require('./functions/Restaurants/setresname.js');
 
 // all user related functions
 var addtocart = require('./functions/Users/addtocart.js');
@@ -69,6 +70,9 @@ var currenttime = require('./functions/Users/currenttime.js');
 var profilepage = require('./functions/Users/profilepage.js');
 var savelocation = require('./functions/Users/savelocation.js');
 var savenotificationidrest = require('./functions/Users/savenotificationidrest.js');
+var setusername = require('./functions/Users/setusername.js');
+var setdescription = require('./functions/Users/setdescription.js');
+var setlocation = require('./functions/Users/setlocation.js');
 
 // Function modules
 var checkandwrite = require('./functions/checkAndWrite');
@@ -201,8 +205,20 @@ mongoose.connection.once('open',function(){
 	app.get('/orderhistoryrest',orderHistoryRest);
 
 	//Copy all orders from restaurants collection to orders collection
-	 const orderCopy=require('./functions/Utils/orderCopy');
-	orderCopy();
+	//  const orderCopy=require('./functions/Utils/orderCopy');
+	// orderCopy();
+
+	// Changes / sets username of user
+	app.get('/setusername', setusername);
+
+	// Changes description of user
+	app.get('/setdescription', setdescription);
+
+	// Changes location of user
+	app.get('/setlocation', setlocation);
+
+	// Changes restaurant name
+	app.get('/setresname', setresname);
 });
 
 var server = app.listen(port,function(req,res){
