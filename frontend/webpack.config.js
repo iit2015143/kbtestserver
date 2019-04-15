@@ -1,31 +1,36 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+var debug = process.env.NODE_ENV !== "production";
+var webpack = require('webpack');
+var path = require('path');
 
 module.exports = {
-   entry: './main.js',
-   output: {
-      path: path.join(__dirname, '/bundle'),
-      filename: 'index_bundle.js'
-   },
-   devServer: {
-      inline: true,
-      port: 8080
-   },
-   module: {
-      rules: [
-         {
-            test: /\.jsx?$/,
-            exclude: /node_modules/,
-            loader: 'babel-loader',
-            query: {
-               presets: ['es2015', 'react']
-            }
-         }
-      ]
-   },
-   plugins:[
-      new HtmlWebpackPlugin({
-         template: './index.html'
-      })
-   ]
-}
+  context: path.join(__dirname, "/src"),
+  devtool: debug ? "inline-sourcemap" : null,
+  entry: "./main.js",
+  module: {
+    rules: [
+      {
+        test: /\.jsx?$/,
+        exclude: /(node_modules|bower_components)/,
+        loader: 'babel-loader',
+        query: {
+          presets: ['react', 'es2015', 'stage-0'],
+          plugins: ['react-html-attrs', 'transform-class-properties', 'transform-decorators-legacy'],
+        }
+      }
+    ]
+  },
+  devServer: {
+    historyApiFallback: true,
+  },
+  output: {
+    path: __dirname + "/src/",
+    filename: "main.min.js",
+    publicPath: '/'
+  },
+  plugins: debug ? [] : [
+    new webpack.optimize.DedupePlugin(),
+    new webpack.optimize.OccurenceOrderPlugin(),
+    new webpack.optimize.UglifyJsPlugin({ mangle: false, sourcemap: false }),
+  ],
+  mode : 'development'
+};
