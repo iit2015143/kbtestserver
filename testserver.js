@@ -45,6 +45,7 @@ const updatedatabasefordeclined=require('./functions/Utils/UpdateDatabaseDecline
 const extractinfofornotif=require('./functions/Utils/ExtractInfoNotif');
 const orderHistory=require('./functions/Users/OrderHistory');
 const orderHistoryRest=require('./functions/Restaurants/OrderHistoryRest');
+const getOrderRange=require('./functions/Utils/getOrderRange');
 
 // Constants
 var constants = require('./kbdelicates/constants.js');
@@ -63,6 +64,9 @@ var setmsgnumber = require('./functions/Restaurants/setmsgnumber.js');
 var setcallnumber = require('./functions/Restaurants/setcallnumber.js');
 var getmsgnumber = require('./functions/Restaurants/getmsgnumber.js');
 var getcallnumber = require('./functions/Restaurants/getcallnumber.js');
+
+const setResImage=require('./functions/Restaurants/setResImage');
+
 var setresname = require('./functions/Restaurants/setresname.js');
 
 // all user related functions
@@ -71,6 +75,9 @@ var currenttime = require('./functions/Users/currenttime.js');
 var profilepage = require('./functions/Users/profilepage.js');
 var savelocation = require('./functions/Users/savelocation.js');
 var savenotificationidrest = require('./functions/Users/savenotificationidrest.js');
+
+const setUserImage=require('./functions/Users/setUserImage');
+
 var setusername = require('./functions/Users/setusername.js');
 var setdescription = require('./functions/Users/setdescription.js');
 var setlocation = require('./functions/Users/setlocation.js');
@@ -211,6 +218,16 @@ mongoose.connection.once('open',function(){
 
 	//Sends orderhistory of a restaurant and is capped by a specific limit.
 	app.get('/orderhistoryrest',orderHistoryRest);
+
+	//Sends orders of a particular user between start and end index
+	app.post('/orderrange',getOrderRange);
+
+	//Set image of a user
+	app.post('/userimage',setUserImage);
+
+	//Set image of a restaurant
+	app.post('/resimage',setResImage);
+
 
 	//Copy all orders from restaurants collection to orders collection
 	//  const orderCopy=require('./functions/Utils/orderCopy');
