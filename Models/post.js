@@ -34,11 +34,11 @@ const PostSchema = new Schema({
   },
   imgURL : {
     type : [String],
-    required : () => {return this.text === undefined},
+    //required : () => {return this.text === undefined},
   },
   text : {
     type : String,
-    required : ( ) => { return this.imgURL.length === 0},
+    //required : ( ) => { return this.imgURL.length === 0},
   },
   likes : {
     type: Number,
@@ -51,6 +51,10 @@ const PostSchema = new Schema({
   date : {
     type : Date,
     default : Date.now()
+  }
+  rank: {
+    type: Number,
+    required: true
   }
 });
 

@@ -7,11 +7,12 @@ var bodyparser = require('body-parser');
 var session = require('express-session');
 //Thus reads configuration of restaurant distance where it will deliver food
 var readConfig = require('./readConfig');
+var cors = require('cors');
 
 // all admin only functions
 var getmerest = require('./functions/adminonly/getmerest.js');
 
-
+app.use(cors());
 //all app uses
 app.use(session({
 	secret: 'somesecret',
@@ -63,7 +64,10 @@ var setmsgnumber = require('./functions/Restaurants/setmsgnumber.js');
 var setcallnumber = require('./functions/Restaurants/setcallnumber.js');
 var getmsgnumber = require('./functions/Restaurants/getmsgnumber.js');
 var getcallnumber = require('./functions/Restaurants/getcallnumber.js');
+
 const setResImage=require('./functions/Restaurants/setResImage');
+
+var setresname = require('./functions/Restaurants/setresname.js');
 
 // all user related functions
 var addtocart = require('./functions/Users/addtocart.js');
@@ -71,7 +75,12 @@ var currenttime = require('./functions/Users/currenttime.js');
 var profilepage = require('./functions/Users/profilepage.js');
 var savelocation = require('./functions/Users/savelocation.js');
 var savenotificationidrest = require('./functions/Users/savenotificationidrest.js');
+
 const setUserImage=require('./functions/Users/setUserImage');
+
+var setusername = require('./functions/Users/setusername.js');
+var setdescription = require('./functions/Users/setdescription.js');
+var setlocation = require('./functions/Users/setlocation.js');
 
 // Function modules
 var checkandwrite = require('./functions/checkAndWrite');
@@ -183,6 +192,8 @@ mongoose.connection.once('open',function(){
 	app.use('/requestordernew',requestOrderNewRoutes);
 	const shareLocationRoutes = require('./routes/shareLocationRoutes');
 	app.use('/shareLocation',shareLocationRoutes);
+	const getDataRoutes = require('./routes/getDataRoutes');
+	app.use('/getData',getDataRoutes);
 
 	//Asks number from user and sends an otp to user
 	app.post('/number',otpUser);
@@ -219,8 +230,20 @@ mongoose.connection.once('open',function(){
 
 
 	//Copy all orders from restaurants collection to orders collection
-	 const orderCopy=require('./functions/Utils/orderCopy');
-	orderCopy();
+	//  const orderCopy=require('./functions/Utils/orderCopy');
+	// orderCopy();
+
+	// Changes / sets username of user
+	app.get('/setusername', setusername);
+
+	// Changes description of user
+	app.get('/setdescription', setdescription);
+
+	// Changes location of user
+	app.get('/setlocation', setlocation);
+
+	// Changes restaurant name
+	app.get('/setresname', setresname);
 });
 
 var server = app.listen(port,function(req,res){

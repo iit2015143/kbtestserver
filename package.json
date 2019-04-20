@@ -5,6 +5,7 @@
   "main": "testserver.js",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
@@ -12,7 +13,7 @@
     "http": "0.0.0",
     "https": "^1.0.0",
     "mongodb": "^3.1.11",
-    "mongoose": "^5.4.17",
+    "mongoose": "^5.4.18",
     "node-gcm": "^1.0.2"
   },
   "devDependencies": {},
